@@ -52,6 +52,12 @@ try:
 except:
     import configparser as ConfigParser
 import itertools
+# added july 2018
+try:
+    from itertools import imap
+except ImportError:
+    # Python 3...
+    imap = map
 try:
     import copy_reg                 # python 2
     zip_longest = itertools.izip_longest
@@ -457,27 +463,27 @@ def process_sample(sample, resdir):
     sample_name = op.basename(sample)
     print (sample_name)
 # First 1D
-#    for exp in glob( op.join(sample, "fid") ): # For 1D processing
+#    for exp in glob( op.join(sample, "*/fid") ): # For 1D processing
 #        print (exp)
 #		 process_1D(exp, resdir)
-    l1D = glob( op.join(sample, "fid") )
+    l1D = glob( op.join(sample, "*", "fid") )
     if l1D != []:
         xarg = list( zip_longest(l1D, [resdir], fillvalue=resdir) )
         print (xarg)
         if POOL is None:
-            result = itertools.imap(process_1D, xarg)
+            result = imap(process_1D, xarg)
         else:
             result = POOL.imap(process_1D, xarg)
         for i,d in enumerate(result):
             print(d)
             plot_1D(d, l1D[i], resdir )
 # then 2D
-#    for exp in glob( op.join(sample, "ser") ): # For 2D processing
+#    for exp in glob( op.join(sample, "*/ser") ): # For 2D processing
 #        print (exp)
 #        process_2D(exp, resdir)
     l2D = []
     lDOSY = []
-    for f in glob( op.join(sample, "ser") ):
+    for f in glob( op.join(sample, "*", "ser") ):
         fiddir =  op.dirname(f)
         if op.exists( op.join(fiddir,'difflist') ):
             lDOSY.append(f)
@@ -487,7 +493,7 @@ def process_sample(sample, resdir):
         xarg = list( zip_longest(l2D, [resdir], fillvalue=resdir) )
         print (xarg)
         if POOL is None:
-            result2 = itertools.imap(process_2D, xarg)
+            result2 = imap(process_2D, xarg)
         else:
             result2 = POOL.imap(process_2D, xarg)
         for i, r in enumerate(result2):
