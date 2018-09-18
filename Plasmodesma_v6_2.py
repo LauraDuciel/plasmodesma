@@ -389,10 +389,10 @@ def process_sample(sample, resdir):
     "Redistributes NMR experiment to corresponding processing"
     sample_name = op.basename(sample)
     print (sample_name)
-    for exp in glob( op.join(sample, "*/fid") ): # For 1D processing
+    for exp in glob( op.join(sample, "fid") ): # For 1D processing
         print (exp)
         process_1D(exp, resdir)
-    for exp in glob( op.join(sample, "*/ser") ): # For 2D processing
+    for exp in glob( op.join(sample, "ser") ): # For 2D processing
         print (exp)
         process_2D(exp, resdir)
 

@@ -457,10 +457,10 @@ def process_sample(sample, resdir):
     sample_name = op.basename(sample)
     print (sample_name)
 # First 1D
-#    for exp in glob( op.join(sample, "*/fid") ): # For 1D processing
+#    for exp in glob( op.join(sample, "fid") ): # For 1D processing
 #        print (exp)
 #		 process_1D(exp, resdir)
-    l1D = glob( op.join(sample, "*/fid") )
+    l1D = glob( op.join(sample, "fid") )
     if l1D != []:
         xarg = list( zip_longest(l1D, [resdir], fillvalue=resdir) )
         print (xarg)
@@ -472,12 +472,12 @@ def process_sample(sample, resdir):
             print(d)
             plot_1D(d, l1D[i], resdir )
 # then 2D
-#    for exp in glob( op.join(sample, "*/ser") ): # For 2D processing
+#    for exp in glob( op.join(sample, "ser") ): # For 2D processing
 #        print (exp)
 #        process_2D(exp, resdir)
     l2D = []
     lDOSY = []
-    for f in glob( op.join(sample, "*/ser") ):
+    for f in glob( op.join(sample, "ser") ):
         fiddir =  op.dirname(f)
         if op.exists( op.join(fiddir,'difflist') ):
             lDOSY.append(f)
