@@ -6,7 +6,9 @@ import os
 import yaml
 import sklearn
 from sklearn import linear_model
-from sklearn.feature_selection import RFE
+from sklearn.feature_selection import RFE, RFECV
+from sklearn import preprocessing
+from sklearn import utils
 import numpy as np
 
 from bokeh.layouts import column,row, widgetbox
@@ -50,6 +52,7 @@ def prepare_analysis(results_folder,ref_name, Y, extension="2D/dipsi2phpr_20_buc
             val = np.maximum(val,0.0)
             return val
         Y = ty(Y)
+
     return X,Y
 
 def HTproj(x, k):
@@ -63,7 +66,7 @@ def HTproj(x, k):
     hpx[tx[N:]] = x[tx[N:]]
     return hpx
 
-def new_linear_regression(X, Y, Im1, Im2, nfeatures=100):
+def LinRegression(X, Y, Im1, Im2, nfeatures=100):
     """
     Performs linear regression analysis between name and name2 datasets.
     - X,Y are the results of prepare_analysis.
@@ -76,7 +79,7 @@ def new_linear_regression(X, Y, Im1, Im2, nfeatures=100):
     m = m.reshape(Im2[2].shape)
     return (Im1[0],Im1[1],m)
 
-def new_RecurFeatElim(X,Y,Im1, Im2, nfeatures=100):
+def RecurFeatElim(X,Y,Im1, Im2, nfeatures=100, CrossVal = False):
     """
     Performs RFE analysis from scikit learn between name and name2 datasets.
     - X,Y are the results of prepare_analysis.
@@ -84,7 +87,10 @@ def new_RecurFeatElim(X,Y,Im1, Im2, nfeatures=100):
     return a mplt axis object(contour_plot) which is then passed to get_contour_data to be displayed with bokeh.
     """
     estimator = linear_model.LinearRegression()
-    selector = RFE(estimator, step=0.5, n_features_to_select=nfeatures)
+    if CrossVal:
+        selector = RFECV(estimator, step=0.5, min_features_to_select=nfeatures,cv=2)
+    else:
+        selector = RFE(estimator, step=0.5, n_features_to_select=nfeatures)
     selector = selector.fit(X, Y)
     N = len(Im2[2].ravel())
     m = np.zeros(N)
@@ -93,10 +99,29 @@ def new_RecurFeatElim(X,Y,Im1, Im2, nfeatures=100):
     return (Im1[0],Im1[1],m)
 
 def LogisticRegr(X, Y, Im1, Im2, nfeatures=100):
-    reg = linear_model.LogisticRegression.fit(X,Y)
+    reg = linear_model.LogisticRegression()
+    Y.astype(int)
+    reg.fit(X,Y)
     m = HTproj(reg.coef_, nfeatures)
     m = m.reshape(Im2[2].shape)
     return (Im1[0],Im1[1],m)
+
+def default_plot_settings(manip_mode):
+    """
+    This function is used to create a default setup for creating NMR bokeh plot.
+    """
+    TOOLS = "pan, box_zoom, undo, redo, reset, save"
+    dbk = {'tools': TOOLS}
+    dbk['x_axis_label'] = u"δ (ppm)"
+    dbk['y_axis_label'] = u"δ (ppm)"
+    dbk['x_range'] = Range1d(10, 0)
+    if manip_mode in ("TOCSY","COSY"):
+        dbk['y_range'] = Range1d(10, 0)
+    elif manip_mode == "HSQC":
+        dbk['y_range'] = Range1d(150, 0)
+    else:
+        print("No compatible mode chosen!")
+    return dbk
 
 class BokehApp_Slider_Plot(object):
     """
@@ -106,22 +131,11 @@ class BokehApp_Slider_Plot(object):
         self.A = A
         self.B = B
         self.C = C
+        self.manip_mode = manip_mode
         if dbk:
             self.dbk = dbk
         else:
-            TOOLS = "pan, box_zoom, undo, redo, reset, save"
-            dbk = {'tools': TOOLS}
-            dbk['x_axis_label'] = u"δ (ppm)"
-            dbk['y_axis_label'] = u"δ (ppm)"
-            dbk['x_range'] = Range1d(10, 0)
-            if manip_mode in ("TOCSY","COSY"):
-                dbk['y_range'] = Range1d(10, 0)
-            elif manip_mode == "HSQC":
-                dbk['y_range'] = Range1d(150, 0)
-            else:
-                print("No compatible mode chosen!")
-            self.dbk = dbk
-        self.manip_mode = manip_mode
+            self.dbk = default_plot_settings(self.manip_mode)
         self.colormap = cmap
         self.slider_value = 3.0
         self.slider_start=0.05 
@@ -162,27 +176,17 @@ class AnalysisPlots(object):
     """
     Class used to create Analysis plots, based on the BokehApp_Slider_Plot class. Needed data are different and the slider is not for scale but features.
     """
-    def __init__(self,X,Y,D1,D2,nfeatures, manip_mode='TOCSY', dbk=None, cmap=None, title="my name", levels = [0.5,1,2,5,10,20,50,100],mode="RFE"):
+    def __init__(self,X,Y,D1,D2,nfeatures, manip_mode='TOCSY', CrossVal=False,dbk=None, cmap=None, title="my name", levels = [0.5,1,2,5,10,20,50,100],mode="RFE"):
         self.X = X
         self.Y = Y
         self.D1 = D1
         self.D2 = D2
+        self.CrossVal = CrossVal
+        self.manip_mode = manip_mode
         if dbk:
             self.dbk = dbk
         else:
-            TOOLS = "pan, box_zoom, undo, redo, reset, save"
-            dbk = {'tools': TOOLS}
-            dbk['x_axis_label'] = u"δ (ppm)"
-            dbk['y_axis_label'] = u"δ (ppm)"
-            dbk['x_range'] = Range1d(10, 0)
-            if manip_mode in ("TOCSY","COSY"):
-                dbk['y_range'] = Range1d(10, 0)
-            elif manip_mode == "HSQC":
-                dbk['y_range'] = Range1d(150, 0)
-            else:
-                print("No compatible mode chosen!")
-            self.dbk = dbk
-        self.manip_mode = manip_mode
+            self.dbk = default_plot_settings(self.manip_mode)
         self.mode=mode
         self.colormap = cmap
         self.name = title 
@@ -192,10 +196,13 @@ class AnalysisPlots(object):
         self.slider_step = 5
         self.levels = levels  
         if self.mode == "RFE": 
-            xs,ys,col = get_contour_data(affiche(*(new_RecurFeatElim(self.X, self.Y, self.D1, self.D2, nfeatures=self.slider_value)), cmap=self.colormap,levelbase=self.levels))
+            xs,ys,col = get_contour_data(affiche(*(RecurFeatElim(self.X, self.Y, self.D1, self.D2, CrossVal=self.CrossVal, nfeatures=self.slider_value)), cmap=self.colormap,levelbase=self.levels))
             self.source = ColumnDataSource(data=dict(xs=xs, ys=ys, color=col))
         elif self.mode == "LinReg":
-            xs,ys,col = get_contour_data(affiche(*(new_linear_regression(self.X, self.Y, self.D1, self.D2, nfeatures=self.slider_value)), cmap=self.colormap,levelbase=self.levels))
+            xs,ys,col = get_contour_data(affiche(*(LinRegression(self.X, self.Y, self.D1, self.D2, nfeatures=self.slider_value)), cmap=self.colormap,levelbase=self.levels))
+            self.source = ColumnDataSource(data=dict(xs=xs, ys=ys, color=col))
+        elif self.mode == "LogisticRegr":
+            xs,ys,col = get_contour_data(affiche(*(LogisticRegr(self.X, self.Y, self.D1, self.D2, nfeatures=self.slider_value)), cmap=self.colormap,levelbase=self.levels))
             self.source = ColumnDataSource(data=dict(xs=xs, ys=ys, color=col))
         else:
             print("The chosen mode does not exist.")
@@ -208,10 +215,13 @@ class AnalysisPlots(object):
     def update_data(self,attr, old, new):
         # Get the current slider value & update source
         if self.mode == "RFE": 
-            xs,ys,col = get_contour_data(affiche(*(new_RecurFeatElim(self.X, self.Y, self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), cmap=self.colormap,levelbase=self.levels))
+            xs,ys,col = get_contour_data(affiche(*(RecurFeatElim(self.X, self.Y, self.D1, self.D2,CrossVal=self.CrossVal, nfeatures=self.nfeatures_slider.value)), cmap=self.colormap,levelbase=self.levels))
             self.source.data = dict(xs=xs, ys=ys, color=col)
         elif self.mode == "LinReg":
-            xs,ys,col = get_contour_data(affiche(*(new_linear_regression(self.X, self.Y, self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), cmap=self.colormap,levelbase=self.levels))
+            xs,ys,col = get_contour_data(affiche(*(LinRegression(self.X, self.Y, self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), cmap=self.colormap,levelbase=self.levels))
+            self.source.data = dict(xs=xs, ys=ys, color=col)
+        elif self.mode == "LogisticRegr":
+            xs,ys,col = get_contour_data(affiche(*(LogisticRegr(self.X, self.Y, self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), cmap=self.colormap,levelbase=self.levels))
             self.source.data = dict(xs=xs, ys=ys, color=col)
         else:
             print("Wrong mode")
@@ -229,7 +239,7 @@ class AnalysisPlots(object):
 
 def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,manip_mode,extension="2D/dipsi2phpr_20_bucketlist.csv",nfeatures=100,threshold=1E-13):
     """
-    This function creates the complete bokeh application.
+    This function creates the complete bokeh application for Plasmodesma results analysis.
     - doc is the current document in which the app is made.
     - folder is the folder in which the results of plasmodesma are stored.
     - activities: the activites corresponding to the different fractions present in the folder.
@@ -257,14 +267,20 @@ def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,ma
     
     GraphRFE =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="RFE",dbk=Graph1.dbk, title="RFE")
     GraphRFE.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
+
+    GraphRFECV =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, CrossVal=True,nfeatures=nfeatures,manip_mode=manip_mode, mode="RFE",dbk=Graph1.dbk, title="RFECV")
+    GraphRFECV.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
     
     GraphLinReg =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="LinReg",dbk=Graph1.dbk, title="Linear Regression")
     GraphLinReg.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
+
+    # GraphLogistReg =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="LogisticRegr",dbk=Graph1.dbk, title="Logisitic Regression")
+    # GraphLogistReg.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
     
     # Set up layouts and add to document
     tab1 = Panel(child=column(row(Graph1.widget,Graph2.widget),row(GraphRatio.widget,GraphSubstract.widget)), 
                  title="Visualization")
-    tab2 = Panel(child=column(row(GraphRFE.widget,GraphLinReg.widget)), title="Global Analysis")
+    tab2 = Panel(child=column(row(GraphRFE.widget,GraphLinReg.widget),row(GraphRFECV.widget)), title="Global Analysis")
     
     doc.add_root(Tabs(tabs=[ tab1,tab2]))
     
