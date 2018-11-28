@@ -73,6 +73,36 @@ def loadStd2D(epath, net=False, sym=False):
         Zr1 = symetrise(Zr1)
     return [Xr1, Yr1, np.nan_to_num(Zr1)]
 
+def loadPP2D(epath, net=False, sym=False):
+    """loads std from a csv bucket-list file from 2D spectra
+    net: determines whether the cleaning method is used
+        the method used is defined by NETMODE global
+    sym: whether symetrisation is used
+    """
+    # lit le fichier
+    ne1 = pd.read_csv( epath, header=1, sep = ', ', usecols=[0, 1, 6], engine='python')
+    x1 = np.array(ne1['centerF1'])
+    xu1 = np.unique(x1)
+    y1 = np.array(ne1['centerF2'])
+    yu1 = np.unique(y1)
+    z1 = np.array(ne1['peaks_nb'])
+    # calcul la matrice
+    Xr1, Yr1 = np.meshgrid(yu1, xu1)
+    Zr1 = np.reshape(z1,(len(xu1),len(yu1)))
+    netmode = NETMODE
+    if net:
+        if netmode=='standard':
+            Zr1 = nettoie(Zr1)
+        elif netmode=='mieux':
+            Zr1 = nettoie_mieux(Zr1)
+        elif netmode=='encore':
+            Zr1 = nettoie_encore_mieux(Zr1)
+        else:
+            raise Exception(netmode + ' : Wrong netmode !')
+    if sym:
+        Zr1 = symetrise(Zr1)
+    return [Xr1, Yr1, np.nan_to_num(Zr1)]
+
 def loadInt1D (epath) :
     """loads std from a csv bucket-list file from 1D spectra"""
     ne1 = pd.read_csv(epath, header=1, sep = ', ', usecols=[0, 1], engine='python')

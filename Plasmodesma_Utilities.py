@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import BucketUtilities
 from BucketUtilities import *
 
-def prepare_analysis(results_folder,ref_name, Y, extension="2D/dipsi2phpr_20_bucketlist.csv",inhib=False):
+def prepare_analysis(results_folder,ref_name, Y, extension="2D/dipsi2phpr_20_bucketlist.csv",inhib=False, sym=True, net=True):
     """
     prepare the arrays for rfe and linear regression.
     - results_folder: location of the plasmodesma results.
@@ -39,7 +39,7 @@ def prepare_analysis(results_folder,ref_name, Y, extension="2D/dipsi2phpr_20_buc
         tit = os.path.join(results_folder,str(n), extension)
         if not n in ref_name: #Used to avoid importing indicated reference data. 
             datas.append(tit)
-            Int = loadInt2D(tit, net=True, sym=True)
+            Int = loadInt2D(tit, net=net, sym=sym)
             tInt = Int[2].ravel() # [tmask]
             X.append(tInt)
     X = np.array(X)
@@ -237,7 +237,7 @@ class AnalysisPlots(object):
         self.plot.multi_line(xs='xs', ys='ys', color='color', source=new_data.source)
         self.widget = column(new_data.scale_slider, self.nfeatures_slider, self.plot)
 
-def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,manip_mode,extension="2D/dipsi2phpr_20_bucketlist.csv",nfeatures=100,threshold=1E-13):
+def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,manip_mode,extension="2D/dipsi2phpr_20_bucketlist.csv",sym=True,net=True,loadwith="PP2D",nfeatures=100,threshold=1E-13):
     """
     This function creates the complete bokeh application for Plasmodesma results analysis.
     - doc is the current document in which the app is made.
@@ -251,10 +251,15 @@ def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,ma
     name = os.path.join(folder,data_name)
     name2 = os.path.join(folder,data_name2)
     refname = os.path.join(folder,dataref)
-    Im1 = BucketUtilities.loadStd2D(name, net=True, sym=True)
-    Im2 = BucketUtilities.loadStd2D(name2, net=True, sym=True)
-    Imref = BucketUtilities.loadStd2D(refname, net=True, sym=True)
-    X,Y =  prepare_analysis(folder,dataref, extension=extension,Y=activities)
+    def load(loadwith,name, net=net, sym=sym):
+        if loadwith == "Std2D":
+            return BucketUtilities.loadStd2D(name, net=net, sym=sym)
+        if loadwith == "PP2D":
+            return BucketUtilities.loadPP2D(name, net=net, sym=sym)
+    Im1 = load(loadwith=loadwith,name=name, net=net, sym=sym)
+    Im2 = load(loadwith=loadwith,name=name2, net=net, sym=sym)
+    Imref = load(loadwith="Std2D",name=refname, net=net, sym=sym)
+    X,Y =  prepare_analysis(folder,dataref, extension=extension,Y=activities, sym=sym, net=net)
     
     Graph1 =  BokehApp_Slider_Plot(*Im1, manip_mode=manip_mode,title=data_name)
     Graph2 =  BokehApp_Slider_Plot(*Im2, dbk=Graph1.dbk, manip_mode=manip_mode,title=data_name2)
@@ -298,4 +303,3 @@ def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,ma
                 grid_line_dash: [6, 4]
                 grid_line_color: white
     """))
-    
