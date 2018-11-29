@@ -273,8 +273,8 @@ def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,ma
     GraphRFE =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="RFE",dbk=Graph1.dbk, title="RFE")
     GraphRFE.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
 
-    GraphRFECV =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, CrossVal=True,nfeatures=nfeatures,manip_mode=manip_mode, mode="RFE",dbk=Graph1.dbk, title="RFECV")
-    GraphRFECV.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
+#    GraphRFECV =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, CrossVal=True,nfeatures=nfeatures,manip_mode=manip_mode, mode="RFE",dbk=Graph1.dbk, title="RFECV")
+#    GraphRFECV.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
     
     GraphLinReg =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="LinReg",dbk=Graph1.dbk, title="Linear Regression")
     GraphLinReg.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
@@ -285,7 +285,7 @@ def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,ma
     # Set up layouts and add to document
     tab1 = Panel(child=column(row(Graph1.widget,Graph2.widget),row(GraphRatio.widget,GraphSubstract.widget)), 
                  title="Visualization")
-    tab2 = Panel(child=column(row(GraphRFE.widget,GraphLinReg.widget),row(GraphRFECV.widget)), title="Global Analysis")
+    tab2 = Panel(child=column(row(GraphRFE.widget,GraphLinReg.widget)), title="Global Analysis")
     
     doc.add_root(Tabs(tabs=[ tab1,tab2]))
     
