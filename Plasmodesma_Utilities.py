@@ -22,7 +22,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import BucketUtilities
-from BucketUtilities import *
 
 def prepare_analysis(results_folder,ref_name, Y, extension="2D/dipsi2phpr_20_bucketlist.csv",inhib=False, sym=True, net=True):
     """
@@ -79,7 +78,7 @@ def LinRegression(X, Y, Im1, Im2, nfeatures=100):
     m = m.reshape(Im2[2].shape)
     return (Im1[0],Im1[1],m)
 
-def RecurFeatElim(X,Y,Im1, Im2, nfeatures=100, CrossVal = False):
+def RecurFeatElim(X,Y,Im1, Im2, nfeatures=100):
     """
     Performs RFE analysis from scikit learn between name and name2 datasets.
     - X,Y are the results of prepare_analysis.
@@ -87,10 +86,7 @@ def RecurFeatElim(X,Y,Im1, Im2, nfeatures=100, CrossVal = False):
     return a mplt axis object(contour_plot) which is then passed to get_contour_data to be displayed with bokeh.
     """
     estimator = linear_model.LinearRegression()
-    if CrossVal:
-        selector = RFECV(estimator, step=0.5, min_features_to_select=nfeatures,cv=2)
-    else:
-        selector = RFE(estimator, step=0.5, n_features_to_select=nfeatures)
+    selector = RFE(estimator, step=0.5, n_features_to_select=nfeatures)
     selector = selector.fit(X, Y)
     N = len(Im2[2].ravel())
     m = np.zeros(N)
@@ -176,7 +172,7 @@ class AnalysisPlots(object):
     """
     Class used to create Analysis plots, based on the BokehApp_Slider_Plot class. Needed data are different and the slider is not for scale but features.
     """
-    def __init__(self,X,Y,D1,D2,nfeatures, manip_mode='TOCSY', CrossVal=False,dbk=None, cmap=None, title="my name", levels = [0.5,1,2,5,10,20,50,100],mode="RFE"):
+    def __init__(self,X,Y,D1,D2,nfeatures, manip_mode='TOCSY', dbk=None, cmap=None, title="my name", levels = [0.5,1,2,5,10,20,50,100],mode="RFE"):
         self.X = X
         self.Y = Y
         self.D1 = D1
@@ -196,7 +192,7 @@ class AnalysisPlots(object):
         self.slider_step = 5
         self.levels = levels  
         if self.mode == "RFE": 
-            xs,ys,col = get_contour_data(affiche(*(RecurFeatElim(self.X, self.Y, self.D1, self.D2, CrossVal=self.CrossVal, nfeatures=self.slider_value)), cmap=self.colormap,levelbase=self.levels))
+            xs,ys,col = get_contour_data(affiche(*(RecurFeatElim(self.X, self.Y, self.D1, self.D2, nfeatures=self.slider_value)), cmap=self.colormap,levelbase=self.levels))
             self.source = ColumnDataSource(data=dict(xs=xs, ys=ys, color=col))
         elif self.mode == "LinReg":
             xs,ys,col = get_contour_data(affiche(*(LinRegression(self.X, self.Y, self.D1, self.D2, nfeatures=self.slider_value)), cmap=self.colormap,levelbase=self.levels))
@@ -272,9 +268,6 @@ def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,ma
     
     GraphRFE =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="RFE",dbk=Graph1.dbk, title="RFE")
     GraphRFE.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
-
-#    GraphRFECV =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, CrossVal=True,nfeatures=nfeatures,manip_mode=manip_mode, mode="RFE",dbk=Graph1.dbk, title="RFECV")
-#    GraphRFECV.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
     
     GraphLinReg =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="LinReg",dbk=Graph1.dbk, title="Linear Regression")
     GraphLinReg.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
@@ -297,8 +290,8 @@ def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,ma
                 background_fill_color: "#DDDDDD"
                 outline_line_color: white
                 toolbar_location: right
-                height: 470
-                width: 470
+                height: 500
+                width: 500
             Grid:
                 grid_line_dash: [6, 4]
                 grid_line_color: white
