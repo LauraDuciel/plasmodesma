@@ -4,25 +4,20 @@ This program contains all useful functions and classes used to create the bokeh 
 """
 import os
 import yaml
-import sklearn
 from sklearn import linear_model
-from sklearn.feature_selection import RFE, RFECV
+from sklearn.feature_selection import RFE
 from sklearn import preprocessing
-from sklearn import utils
 import numpy as np
 
-from bokeh.layouts import column,row, widgetbox
-from bokeh.models import ColumnDataSource, CustomJS,Range1d
-from bokeh.models.widgets import Slider, TextInput, CheckboxGroup, Panel, Tabs
-from bokeh.plotting import figure,reset_output
+from bokeh.layouts import column,row
+from bokeh.models import ColumnDataSource, Range1d
+from bokeh.models.widgets import Slider, Panel, Tabs
+from bokeh.plotting import figure
 from bokeh.themes import Theme
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
-import BucketUtilities
-from BucketUtilities import *
+import BucketUtilities as BU
 
 def ty(x, A, B):
     "A defines the slope of the sigmoid"
@@ -33,7 +28,7 @@ def ty(x, A, B):
     val = np.maximum(val,0.0)
     return val
 
-def prepare_analysis(results_folder,ref_name, extension="2D/dipsi2phpr_20_bucketlist.csv", sym=True, net=True):
+def prepare_analysis(results_folder, ref_name, extension="2D/dipsi2phpr_20_bucketlist.csv", sym=True, net=True):
     """
     prepare the arrays for rfe and linear regression.
     - results_folder: location of the plasmodesma results.
@@ -48,7 +43,7 @@ def prepare_analysis(results_folder,ref_name, extension="2D/dipsi2phpr_20_bucket
         tit = os.path.join(results_folder,str(n), extension)
         if not n in ref_name: #Used to avoid importing indicated reference data. 
             datas.append(tit)
-            Int = loadInt2D(tit, net=net, sym=sym)
+            Int = BU.loadInt2D(tit, net=net, sym=sym)
             tInt = Int[2].ravel() # [tmask]
             X.append(tInt)
     X = np.array(X)
@@ -77,9 +72,9 @@ def LinRegression(X, Y, Im1, Im2, nfeatures=100):
     reg.fit(X, Y)
     m = HTproj(reg.coef_, nfeatures)
     m = m.reshape(Im2[2].shape)
-    return (Im1[0],Im1[1],m)
+    return (Im1[0], Im1[1], m)
 
-def RecurFeatElim(X,Y,Im1, Im2, nfeatures=100):
+def RecurFeatElim(X, Y, Im1, Im2, nfeatures=100):
     """
     Performs RFE analysis from scikit learn between name and name2 datasets.
     - X,Y are the results of prepare_analysis.
@@ -93,15 +88,15 @@ def RecurFeatElim(X,Y,Im1, Im2, nfeatures=100):
     m = np.zeros(N)
     m[selector.support_] = 1.0
     m = m.reshape(Im2[2].shape)
-    return (Im1[0],Im1[1],m)
+    return (Im1[0], Im1[1], m)
 
 def LogisticRegr(X, Y, Im1, Im2, nfeatures=100):
     reg = linear_model.LogisticRegression()
     Y.astype(int)
-    reg.fit(X,Y)
+    reg.fit(X, Y)
     m = HTproj(reg.coef_, nfeatures)
     m = m.reshape(Im2[2].shape)
-    return (Im1[0],Im1[1],m)
+    return (Im1[0], Im1[1], m)
 
 def default_plot_settings(manip_mode):
     """
@@ -120,11 +115,18 @@ def default_plot_settings(manip_mode):
         print("No compatible mode chosen!")
     return dbk
 
+def slider(title, value, start, end, step):
+    """
+    Creates a Bokeh Slider
+    """
+    return Slider(title=title, value=value, start=start, end=end, 
+                      step=step)
+
 class BokehApp_Slider_Plot(object):
     """
     Class used to create plot and associated slider from loadStd2D() results.
     """
-    def __init__(self, A, B, C, manip_mode='TOCSY', dbk=None, cmap=None, title="my name", levels = [0.5,1,2,5,10,20,50,100]):
+    def __init__(self, A, B, C, manip_mode='TOCSY', dbk=None, cmap=None, title="my name", levels=[0.5,1,2,5,10,20,50,100]):
         self.A = A
         self.B = B
         self.C = C
@@ -135,45 +137,86 @@ class BokehApp_Slider_Plot(object):
             self.dbk = default_plot_settings(self.manip_mode)
         self.colormap = cmap
         self.slider_value = 3.0
-        self.slider_start=0.05 
-        self.slider_end=30.0
-        self.slider_step=0.05
-        self.name =title
+        self.slider_start = 0.05 
+        self.slider_end = 30.0
+        self.slider_step = 0.05
+        self.name = title
         self.levels = levels  
-        xs,ys,col = get_contour_data(affiche(self.A, self.B, self.C, cmap=self.colormap,levelbase=self.levels,
-                                             scale=self.slider_value))
+        xs,ys,col = BU.affiche_contour(self.A, self.B, self.C, cmap=self.colormap, levelbase=self.levels,
+                                             scale=self.slider_value)
         self.source = ColumnDataSource(data=dict(xs=xs, ys=ys, color=col))
         self.plot = figure(**self.dbk, title=self.name )
         self.plot.multi_line(xs='xs', ys='ys', color='color', source=self.source)
-        self.scale_slider = self.slider(title=self.name, value=self.slider_value, start=self.slider_start, end=self.slider_end, 
-                      step=self.slider_step)
+        self.scale_slider = slider(title=self.name, value=self.slider_value, start=self.slider_start, 
+                                        end=self.slider_end, step=self.slider_step)
         self.scale_slider.on_change('value', self.update_data)
-        self.widget = column(self.scale_slider,self.plot)
+        self.widget = column(self.scale_slider, self.plot)
             
-    def update_data(self,attr, old, new):
+    def update_data(self, attr, old, new):
         # Get the current slider value & update source
-        xs,ys,col = get_contour_data( affiche( self.A, self.B, self.C, scale=self.scale_slider.value, cmap=self.colormap,levelbase=self.levels))
+        xs,ys,col = BU.affiche_contour(self.A, self.B, self.C, scale=self.scale_slider.value, 
+                                        cmap=self.colormap, levelbase=self.levels)
         self.source.data = dict(xs=xs, ys=ys, color=col)#update source
-        
-    def slider(self,title, value, start, end, 
-                      step):
-        return Slider(title=title, value=value, start=start, end=end, 
-                      step=step)
     
-    def add_multiline(self,E,F,G,manip_mode,title,cmap,levels):
+    def add_multiline(self, E, F, G, manip_mode, title, cmap, levels):
         """
         add a multiline to the original plot and the associated slider.
         """
-        new_data = BokehApp_Slider_Plot(E,F,G,dbk=self.dbk,manip_mode=manip_mode,cmap=cmap,title=title,levels=levels)
+        new_data = BokehApp_Slider_Plot(E, F, G, dbk=self.dbk, manip_mode=manip_mode, 
+                                        cmap=cmap, title=title, levels=levels)
         self.plot.multi_line(xs='xs', ys='ys', color='color', source=new_data.source)
         self.widget = column(new_data.scale_slider, self.scale_slider, self.plot)
 
+def BuildDataForSourceChic(Y, A, B):
+    """
+    Tool to build data for "source_chic" used in AnalysisPlots
+    """
+    xs_ctrl = []
+    ys_ctrl = []
+    for y in Y:
+        tyy = ty(y, A, B)
+        xs_ctrl.append([0, tyy, tyy])
+        ys_ctrl.append([y, y, 0])
+    return xs_ctrl, ys_ctrl
+
+def BuildDataForSourcesCorrection(x, Y, A, B):
+    """
+    Tool to build the data for sources used in AnalysisPlots to display the correction of activities.
+    """
+    line_x = ty(x, A, B)
+    line_y = x
+    points_x = ty(Y, A, B) #Corrected Y
+    points_y = Y
+    return(line_x, line_y, points_x, points_y)
+
+def BuildDataAndSources(resulting, mode, X, Y, x, A, B, D1, D2, nfeatures, cmap, levelbase):
+    """
+    Build all the sources necessary in AnalysisPlots
+    """
+    if mode == "RFE":
+        xs,ys,col = BU.affiche_contour(*(RecurFeatElim(X, ty(Y, A, B), D1, D2, nfeatures=nfeatures)), cmap=cmap, levelbase=levelbase)
+    elif mode == "LinReg":
+        xs,ys,col = BU.affiche_contour(*(LinRegression(X, ty(Y, A, B), D1, D2, nfeatures=nfeatures)), cmap=cmap, levelbase=levelbase)
+    elif mode == "LogisticRegr":
+        xs,ys,col = BU.affiche_contour(*(LogisticRegr(X, ty(Y, A, B), D1, D2, nfeatures=nfeatures)), cmap=cmap, levelbase=levelbase)
+    elif mode not in ("RFE","LinReg","LogisticRegr"):
+        print("WRONG MODE")
+    source = ColumnDataSource(data=dict(xs=xs, ys=ys, color=col))
+    (line_x,line_y,points_x,points_y) = BuildDataForSourcesCorrection(x=x, Y=Y, A=A, B=B)
+    source_correc_line = ColumnDataSource(data=dict(line_x=line_x, line_y=line_y))
+    source_correc_points = ColumnDataSource(data=dict(points_x=points_x, points_y=points_y))
+    (xs_ctrl,ys_ctrl) = BuildDataForSourceChic(Y=Y, A=A, B=B) 
+    source_chic = ColumnDataSource(data=dict(xs_ctrl=xs_ctrl, ys_ctrl=ys_ctrl))
+    if resulting == "sources":
+        return(source, source_correc_line, source_correc_points, source_chic)
+    elif resulting == "dataforsources":
+        return(xs, ys, col, line_x, line_y, points_x, points_y, xs_ctrl, ys_ctrl)
 
 class AnalysisPlots(object):
     """
     Class used to create Analysis plots, based on the BokehApp_Slider_Plot class. Needed data are different and the slider is not for scale but features.
     """
-    def __init__(self,X,Y,D1,D2,nfeatures,A,B, manip_mode='TOCSY', dbk=None, cmap=None, title="my name", levels = [0.5,1,2,5,10,20,50,100],mode="RFE"):
+    def __init__(self, X, Y, D1, D2, nfeatures, A, B, manip_mode='TOCSY', dbk=None, cmap=None, title="my name", levels=[0.5,1,2,5,10,20,50,100], mode="RFE"):
         self.X = X
         self.x = np.linspace(0.,1.,100)
         self.Y = Y
@@ -184,7 +227,7 @@ class AnalysisPlots(object):
             self.dbk = dbk
         else:
             self.dbk = default_plot_settings(self.manip_mode)
-        self.mode=mode
+        self.mode = mode
         self.colormap = cmap
         self.name = title 
         self.slider_value = nfeatures
@@ -194,65 +237,15 @@ class AnalysisPlots(object):
         self.slider_end = 500
         self.slider_step = 5
         self.levels = levels  
-        if self.mode == "RFE": 
-            xs,ys,col = get_contour_data(affiche(*(RecurFeatElim(self.X, ty(self.Y,self.A_slider_value,self.B_slider_value), self.D1, self.D2,nfeatures=self.slider_value)), cmap=self.colormap,levelbase=self.levels))
-            self.source = ColumnDataSource(data=dict(xs=xs, ys=ys, color=col))
-            line_x = ty(self.x,self.A_slider_value,self.B_slider_value)
-            line_y = self.x
-            points_x = ty(self.Y,self.A_slider_value,self.B_slider_value) #Corrected Y
-            points_y = self.Y
-            self.source_correc_line = ColumnDataSource(data=dict(line_x=line_x,line_y=line_y))
-            self.source_correc_points = ColumnDataSource(data=dict(points_x=points_x,points_y=points_y))
-            xs_ctrl = []
-            ys_ctrl = []
-            col_ctrl = []
-            for y in self.Y:
-                tyy = ty(y,self.A_slider_value,self.B_slider_value)
-                xs_ctrl.append([0,tyy,tyy])
-                ys_ctrl.append([y,y,0])
-                col_ctrl.append(['red','red','red'])
-            self.source_chic = ColumnDataSource(data=dict(xs_ctrl=xs_ctrl,ys_ctrl=ys_ctrl,col_ctrl=col_ctrl))
-        elif self.mode == "LinReg":
-            xs,ys,col = get_contour_data(affiche(*(LinRegression(self.X, ty(self.Y,self.A_slider_value,self.B_slider_value), self.D1, self.D2, nfeatures=self.slider_value)), cmap=self.colormap,levelbase=self.levels))
-            self.source = ColumnDataSource(data=dict(xs=xs, ys=ys, color=col))
-            line_x = ty(self.x,self.A_slider_value,self.B_slider_value)
-            line_y = self.x
-            points_x = ty(self.Y,self.A_slider_value,self.B_slider_value) #Corrected Y
-            points_y = self.Y
-            self.source_correc_line = ColumnDataSource(data=dict(line_x=line_x,line_y=line_y))
-            self.source_correc_points = ColumnDataSource(data=dict(points_x=points_x,points_y=points_y))
-            xs_ctrl = []
-            ys_ctrl = []
-            col_ctrl = []
-            for y in self.Y:
-                tyy = ty(y,self.A_slider_value,self.B_slider_value)
-                xs_ctrl.append([0,tyy,tyy])
-                ys_ctrl.append([y,y,0])
-                col_ctrl.append(['red','red','red'])
-            self.source_chic = ColumnDataSource(data=dict(xs_ctrl=xs_ctrl,ys_ctrl=ys_ctrl,col_ctrl=col_ctrl))
-        elif self.mode == "LogisticRegr":
-            xs,ys,col = get_contour_data(affiche(*(LogisticRegr(self.X, ty(self.Y,self.A_slider_value,self.B_slider_value), self.D1, self.D2, nfeatures=self.slider_value)), cmap=self.colormap,levelbase=self.levels))
-            self.source = ColumnDataSource(data=dict(xs=xs, ys=ys, color=col))
-            line_x = ty(self.x,self.A_slider_value,self.B_slider_value)
-            line_y = self.x
-            points_x = ty(self.Y,self.A_slider_value,self.B_slider_value) #Corrected Y
-            points_y = self.Y
-            self.source_correc_line = ColumnDataSource(data=dict(line_x=line_x,line_y=line_y))
-            self.source_correc_points = ColumnDataSource(data=dict(points_x=points_x,points_y=points_y))
-            xs_ctrl = []
-            ys_ctrl = []
-            col_ctrl = []
-            for y in self.Y:
-                tyy = ty(y,self.A_slider_value,self.B_slider_value)
-                xs_ctrl.append([0,tyy,tyy])
-                ys_ctrl.append([y,y,0])
-                col_ctrl.append(['red','red','red'])
-            self.source_chic = ColumnDataSource(data=dict(xs_ctrl=xs_ctrl,ys_ctrl=ys_ctrl,col_ctrl=col_ctrl))
-        else:
-            print("The chosen mode does not exist.")
+        (self.source, self.source_correc_line, self.source_correc_points, self.source_chic) = BuildDataAndSources(resulting="sources", mode=self.mode, X=self.X, Y=self.Y, x=self.x,
+                                                                                                                A=self.A_slider_value, B=self.B_slider_value, D1=self.D1, D2=self.D2, 
+                                                                                                                nfeatures=self.slider_value, cmap=self.colormap, levelbase=self.levels)
+        #Creating analysis plots according to chosen mode from sources
         self.plot = figure(**self.dbk, title=self.name )
         self.plot.multi_line(xs='xs', ys='ys', color='color', source=self.source)
-
+        self.nfeatures_slider = slider(title="N Features Kept", value=self.slider_value, start=self.slider_start, end=self.slider_end, step=self.slider_step)
+        self.nfeatures_slider.on_change('value', self.update_data)
+        #Settings for control (correction) plot from sources
         TOOLS = "pan, box_zoom, undo, redo, reset, save"
         dbk_ctrl = {'tools': TOOLS}
         dbk_ctrl['x_axis_label'] = u"Concentration"
@@ -263,87 +256,31 @@ class AnalysisPlots(object):
         self.plot_control.line(x='line_x',y='line_y',line_width=2,source=self.source_correc_line)
         self.plot_control.circle(x='points_x',y='points_y',color='red', size=10, source=self.source_correc_points)
         self.plot_control.multi_line(xs='xs_ctrl',ys='ys_ctrl', color='coral',line_dash="dotdash", line_width=2, source=self.source_chic)
-
-        self.nfeatures_slider = self.slider(title="N Features Kept", value=self.slider_value, start=self.slider_start, end=self.slider_end, step=self.slider_step)
-        self.nfeatures_slider.on_change('value', self.update_data)
-        self.A_slider = self.slider(title="A", value=self.A_slider_value, start=0.1, end=1, step=0.01)
+        self.A_slider = slider(title="A", value=self.A_slider_value, start=0.1, end=1, step=0.01)
         self.A_slider.on_change('value', self.update_data)
-        self.B_slider = self.slider(title="B", value=self.B_slider_value, start=0.1, end=1, step=0.01)
+        self.B_slider = slider(title="B", value=self.B_slider_value, start=0.1, end=1, step=0.01)
         self.B_slider.on_change('value', self.update_data)
+        #Building complete widget
         self.widget = column(self.nfeatures_slider, self.A_slider, self.B_slider, self.plot, self.plot_control)
 
-    def update_data(self,attr, old, new):
+    def update_data(self, attr, old, new):
         # Get the current slider value & update source
-        if self.mode == "RFE": 
-            xs,ys,col = get_contour_data(affiche(*(RecurFeatElim(self.X, ty(self.Y,self.A_slider.value,self.B_slider.value), self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), cmap=self.colormap,levelbase=self.levels))
-            self.source.data = dict(xs=xs, ys=ys, color=col)
-            line_x = ty(self.x,self.A_slider.value,self.B_slider.value)
-            line_y = self.x
-            points_x = ty(self.Y,self.A_slider.value,self.B_slider.value) #Corrected Y
-            points_y = self.Y
-            self.source_correc_line.data = dict(line_x=line_x,line_y=line_y)
-            self.source_correc_points.data = dict(points_x=points_x,points_y=points_y)
-            xs_ctrl = []
-            ys_ctrl = []
-            col_ctrl = []
-            for y in self.Y:
-                tyy = ty(y,self.A_slider.value,self.B_slider.value)
-                xs_ctrl.append([0,tyy,tyy])
-                ys_ctrl.append([y,y,0])
-                col_ctrl.append(['red','red','red'])
-            self.source_chic.data = dict(xs_ctrl=xs_ctrl,ys_ctrl=ys_ctrl,col_ctrl=col_ctrl)
-        elif self.mode == "LinReg":
-            xs,ys,col = get_contour_data(affiche(*(LinRegression(self.X, ty(self.Y,self.A_slider.value,self.B_slider.value), self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), cmap=self.colormap,levelbase=self.levels))
-            self.source.data = dict(xs=xs, ys=ys, color=col)
-            line_x = ty(self.x,self.A_slider.value,self.B_slider.value)
-            line_y = self.x
-            points_x = ty(self.Y,self.A_slider.value,self.B_slider.value) #Corrected Y
-            points_y = self.Y
-            self.source_correc_line.data = dict(line_x=line_x,line_y=line_y)
-            self.source_correc_points.data = dict(points_x=points_x,points_y=points_y)
-            xs_ctrl = []
-            ys_ctrl = []
-            col_ctrl = []
-            for y in self.Y:
-                tyy = ty(y,self.A_slider.value,self.B_slider.value)
-                xs_ctrl.append([0,tyy,tyy])
-                ys_ctrl.append([y,y,0])
-                col_ctrl.append(['red','red','red'])
-            self.source_chic.data = dict(xs_ctrl=xs_ctrl,ys_ctrl=ys_ctrl,col_ctrl=col_ctrl)
-        elif self.mode == "LogisticRegr":
-            xs,ys,col = get_contour_data(affiche(*(LogisticRegr(self.X, ty(self.Y,self.A_slider.value,self.B_slider.value), self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), cmap=self.colormap,levelbase=self.levels))
-            self.source.data = dict(xs=xs, ys=ys, color=col)
-            line_x = ty(self.x,self.A_slider.value,self.B_slider.value)
-            line_y = self.x
-            points_x = ty(self.Y,self.A_slider.value,self.B_slider.value) #Corrected Y
-            points_y = self.Y
-            self.source_correc_line.data = dict(line_x=line_x,line_y=line_y)
-            self.source_correc_points.data = dict(points_x=points_x,points_y=points_y)
-            xs_ctrl = []
-            ys_ctrl = []
-            col_ctrl = []
-            for y in self.Y:
-                tyy = ty(y,self.A_slider.value,self.B_slider.value)
-                xs_ctrl.append([0,tyy,tyy])
-                ys_ctrl.append([y,y,0])
-                col_ctrl.append(['red','red','red'])
-            self.source_chic.data = dict(xs_ctrl=xs_ctrl,ys_ctrl=ys_ctrl,col_ctrl=col_ctrl)
-        else:
-            print("Wrong mode")
+        (xs, ys, col, line_x, line_y, points_x, points_y, xs_ctrl, ys_ctrl) = BuildDataAndSources(resulting="dataforsources", mode=self.mode, X=self.X, Y=self.Y, x=self.x, A=self.A_slider.value,
+            B=self.B_slider.value, D1=self.D1, D2=self.D2, nfeatures=self.nfeatures_slider.value, cmap=self.colormap, levelbase=self.levels)
+        self.source.data = dict(xs=xs, ys=ys, color=col)
+        self.source_correc_line.data = dict(line_x=line_x, line_y=line_y)
+        self.source_correc_points.data = dict(points_x=points_x, points_y=points_y)
+        self.source_chic.data = dict(xs_ctrl=xs_ctrl, ys_ctrl=ys_ctrl)
 
-
-    def slider(self,title, value, start, end, step):
-        return Slider(title=title, value=value, start=start, end=end, step=step)
-
-    def add_multiline(self,E,F,G,manip_mode,title,cmap,levels):
+    def add_multiline(self, E, F, G, manip_mode, title, cmap, levels):
         """
         add a multiline to the original plot and the associated scale slider.
         """
-        new_data = BokehApp_Slider_Plot(E,F,G,dbk=self.dbk,manip_mode=manip_mode,cmap=cmap,title=title,levels=levels)
+        new_data = BokehApp_Slider_Plot(E, F, G, dbk=self.dbk, manip_mode=manip_mode, cmap=cmap, title=title, levels=levels)
         self.plot.multi_line(xs='xs', ys='ys', color='color', source=new_data.source)
         self.widget = column(new_data.scale_slider, self.nfeatures_slider, self.A_slider, self.B_slider, self.plot, self.plot_control)
 
-def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,manip_mode,extension="2D/dipsi2phpr_20_bucketlist.csv",correction=True, B=0.5, A=0.1, sym=True,net=True,loadwith="PP2D",nfeatures=100,threshold=1E-13):
+def new_create_app(doc, folder, dataref, data_name, data_name2, netmode, activities, manip_mode, extension="2D/dipsi2phpr_20_bucketlist.csv", correction=True, B=0.5, A=0.1, sym=True, net=True, loadwith="PP2D", nfeatures=100):
     """
     This function creates the complete bokeh application for Plasmodesma results analysis.
     - doc is the current document in which the app is made.
@@ -353,47 +290,50 @@ def new_create_app(doc,folder,dataref,data_name,data_name2,netmode,activities,ma
     - name2 is the name of the second data to display & analyse.
     - netmode is the cleaning/denoising mode desired for plasmodesma (BucketUtilities).
     """
-    BucketUtilities.NETMODE = netmode
-    name = os.path.join(folder,data_name)
-    name2 = os.path.join(folder,data_name2)
-    refname = os.path.join(folder,dataref)
-    def load(loadwith,name, net=net, sym=sym):
+    BU.NETMODE = netmode
+    name = os.path.join(folder, data_name)
+    name2 = os.path.join(folder, data_name2)
+    refname = os.path.join(folder, dataref)
+    def load(loadwith, name, net=net, sym=sym):
+        """
+        Used to decide which type of loading(from bucketutilities) is used.
+        """
         if loadwith == "Std2D":
-            return BucketUtilities.loadStd2D(name, net=net, sym=sym)
+            return BU.loadStd2D(name, net=net, sym=sym)
         if loadwith == "PP2D":
-            return BucketUtilities.loadPP2D(name, net=net, sym=sym)
-    Im1 = load(loadwith=loadwith,name=name, net=net, sym=sym)
-    Im2 = load(loadwith=loadwith,name=name2, net=net, sym=sym)
-    Imref = load(loadwith="Std2D",name=refname, net=net, sym=sym)
-    X =  prepare_analysis(folder,dataref, extension=extension, sym=sym, net=net)
+            return BU.loadPP2D(name, net=net, sym=sym)
+    Im1 = load(loadwith=loadwith, name=name, net=net, sym=sym)
+    Im2 = load(loadwith=loadwith, name=name2, net=net, sym=sym)
+    Imref = load(loadwith="Std2D", name=refname, net=net, sym=sym)
+    X = prepare_analysis(folder, dataref, extension=extension, sym=sym, net=net)
     
-    Graph1 =  BokehApp_Slider_Plot(*Im1, manip_mode=manip_mode,title=data_name)
-    Graph2 =  BokehApp_Slider_Plot(*Im2, dbk=Graph1.dbk, manip_mode=manip_mode,title=data_name2)
-    GraphRatio =  BokehApp_Slider_Plot(Im1[0], Im1[1], Im1[2]/(Im2[2]+1e-5),dbk=Graph1.dbk,manip_mode=manip_mode, 
+    Graph1 =  BokehApp_Slider_Plot(*Im1, manip_mode=manip_mode, title=data_name)
+    Graph2 =  BokehApp_Slider_Plot(*Im2, dbk=Graph1.dbk, manip_mode=manip_mode, title=data_name2)
+    GraphRatio =  BokehApp_Slider_Plot(Im1[0], Im1[1], Im1[2]/(Im2[2]+1e-5), dbk=Graph1.dbk, manip_mode=manip_mode, 
                                          title="Ratio")
-    GraphRatio.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
-    GraphSubstract =  BokehApp_Slider_Plot(Im1[0], Im1[1], Im1[2]-Im2[2],dbk=Graph1.dbk,manip_mode=manip_mode, 
+    GraphRatio.add_multiline(*Imref, manip_mode=manip_mode, title="Reference", cmap=cm.autumn, levels=[1])
+    GraphSubstract =  BokehApp_Slider_Plot(Im1[0], Im1[1], Im1[2]-Im2[2], dbk=Graph1.dbk, manip_mode=manip_mode, 
                                              title="Subtraction")
-    GraphSubstract.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
+    GraphSubstract.add_multiline(*Imref, manip_mode=manip_mode, title="Reference", cmap=cm.autumn, levels=[1])
     if not correction: #A way to tell t(y) to do nothing
         A = 0
         B = 0
 
-    GraphRFE =  AnalysisPlots(X=X,Y=activities,A=A,B=B,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="RFE",dbk=Graph1.dbk, title="RFE")
-    GraphRFE.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
+    GraphRFE =  AnalysisPlots(X=X, Y=activities, A=A, B=B, D1=Im1, D2=Im2, nfeatures=nfeatures, manip_mode=manip_mode, mode="RFE", dbk=Graph1.dbk, title="RFE")
+    GraphRFE.add_multiline(*Imref, manip_mode=manip_mode, title="Reference", cmap=cm.autumn, levels=[1])
     
-    GraphLinReg =  AnalysisPlots(X=X,Y=activities,A=A,B=B,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="LinReg",dbk=Graph1.dbk, title="Linear Regression")
-    GraphLinReg.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
+    GraphLinReg =  AnalysisPlots(X=X, Y=activities, A=A, B=B, D1=Im1, D2=Im2, nfeatures=nfeatures, manip_mode=manip_mode, mode="LinReg",dbk=Graph1.dbk, title="Linear Regression")
+    GraphLinReg.add_multiline(*Imref, manip_mode=manip_mode, title="Reference", cmap=cm.autumn, levels=[1])
 
     # GraphLogistReg =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="LogisticRegr",dbk=Graph1.dbk, title="Logisitic Regression")
     # GraphLogistReg.add_multiline(*Imref,manip_mode=manip_mode,title="Reference",cmap=cm.autumn, levels=[1])
     
     # Set up layouts and add to document
-    tab1 = Panel(child=column(row(Graph1.widget,Graph2.widget),row(GraphRatio.widget,GraphSubstract.widget)), 
+    tab1 = Panel(child=column(row(Graph1.widget, Graph2.widget),row(GraphRatio.widget, GraphSubstract.widget)), 
                  title="Visualization")
-    tab2 = Panel(child=column(row(GraphRFE.widget,GraphLinReg.widget)), title="Global Analysis")
+    tab2 = Panel(child=column(row(GraphRFE.widget, GraphLinReg.widget)), title="Global Analysis")
     
-    doc.add_root(Tabs(tabs=[ tab1,tab2]))
+    doc.add_root(Tabs(tabs=[tab1, tab2]))
     
     doc.title = "SMARTE"
 

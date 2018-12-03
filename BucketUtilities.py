@@ -295,3 +295,5 @@ def normalize(Z):
     mu = ZZ.mean()
     sigma = ZZ.std()
     
+def affiche_contour(*arg, **kwarg):
+    return get_contour_data(affiche(*arg, **kwarg))
