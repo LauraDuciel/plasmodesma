@@ -14,7 +14,7 @@ NETMODE = 'mieux' # standard / mieux / encore
 
 class StatSeries():
     """to store a series of StatSpectrum()"""
-    def __init__(self, folder, data_name, data_name2, activities, manip_mode='dispi', dataref=None, sym=True, net=True, debug=True):   # load all datasets
+    def __init__(self, folder, data_name, data_name2, activities, manip_mode='TOCSY', dataref=None, sym=True, net=True, debug=True):   # load all datasets
         """
         folder : where are the datasets (Results/)
         manip : which to load - the begin of the names (dipsi cosy hsqc ...)
@@ -22,6 +22,8 @@ class StatSeries():
         """
         self.Series = []
         self.reference = None
+        self.manip_mode = manip_mode
+        self.folder = folder
         # load experiments
         if manip_mode == 'TOCSY':
             maniplist = ['dipsi', 'mlev', 'towny']
@@ -74,6 +76,8 @@ class StatSpectrum():
         self.Yr1 = None
         self.Zr1 = []
         self.loadResult2D()
+        self.F1_values = self.xu1
+        self.F2_values = self.yu1
 
     def loadResult2D(self):
         """loads all entries from a csv bucket-list file from 2D spectra
