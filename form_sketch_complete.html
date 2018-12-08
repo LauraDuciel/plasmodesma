@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Plasmodesma Analysis</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous"> 
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link href="/static/css/font_OpenSansCondensed700.css" rel="stylesheet"> 
+	<style>
+	.form-text.text-muted {
+	font-size: 12px
+	}
+	label { font-size: 14px }
+	</style>
+</head>
+
+<body>
+	<div class="container-fluid" style="width:500px;border-style: groove;border-color: steelblue;border-width: 2px;border-radius: 10px;padding-right: 5px;padding-left: 5px;margin: 5px;">
+		<form action="{{ url_for('handle_data') }}" method="post">
+			<div class="row" style=";padding-right: 8px;padding-left: 8px;padding-top: 8px">
+				<div class="col-md-12" style="border-bottom-style:double;border-bottom-color: steelblue;padding-right: 15px;padding-left: 15px">
+					<H3><strong>Load and Clean</strong></H3>
+					<div class="form-group">
+						<label for="manip_mode">Dataset Type</label> 
+						<div>
+							<select id="manip_mode" name="manip_mode" class="custom-select" aria-describedby="manip_modeHelpBlock" required="required">
+							<option value="HSQC">HSQC</option>
+							<option value="COSY">COSY</option>
+							<option value="TOCSY">TOCSY</option>
+							</select> 
+							<span id="manip_modeHelpBlock" class="form-text text-muted">Determine which spectra you want to analyse.</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="load">Input method</label> 
+						<div>
+							<select id="load" name="load" class="custom-select" aria-describedby="loadHelpBlock" required="required">
+							<option value="Int2D">Integrals</option>
+							<option value="std">Standard Deviation</option>
+							<option value="PP2D">Peak Picking</option>
+							</select> 
+							<span id="loadHelpBlock" class="form-text text-muted">Which Bucket channel is to be analysed.</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Denoising?</label> 
+						<div>
+							<label class="custom-control custom-radio">
+							<input name="clean" type="radio" aria-describedby="cleanHelpBlock" required="required" class="custom-control-input" value="True"> 
+							<span class="custom-control-indicator"></span> 
+							<span class="custom-control-description">Yes</span>
+							</label>
+							<label class="custom-control custom-radio">
+							<input name="clean" type="radio" aria-describedby="cleanHelpBlock" required="required" class="custom-control-input" value="False"> 
+							<span class="custom-control-indicator"></span> 
+							<span class="custom-control-description">No</span>
+							</label> 
+							<span id="cleanHelpBlock" class="form-text text-muted">Datasets can be cleaned of <i>t1</i>-noise and other artefacts.</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="netmode">Denoising method</label> 
+						<div>
+							<select id="netmode" name="netmode" class="custom-select" aria-describedby="netmodeHelpBlock" required="required">
+							<option value="standard">Mild</option>
+							<option value="mieux">Medium</option>
+							<option value="encore">Harsh</option>
+							</select> 
+							<span id="netmodeHelpBlock" class="form-text text-muted">The denoising strength.</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Symetrization?</label> 
+						<div>
+							<label class="custom-control custom-radio">
+							<input name="sym" type="radio" class="custom-control-input" value="True" aria-describedby="symHelpBlock" required="required"> 
+							<span class="custom-control-indicator"></span> 
+							<span class="custom-control-description">Yes</span>
+							</label>
+							<label class="custom-control custom-radio">
+							<input name="sym" type="radio" class="custom-control-input" value="False" aria-describedby="symHelpBlock" required="required"> 
+							<span class="custom-control-indicator"></span> 
+							<span class="custom-control-description">No</span>
+							</label> 
+							<span id="symHelpBlock" class="form-text text-muted">
+							Symmetry of Homonuclear experiments can be forced, ignored for heteronuclear experiment.</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="activities">Sample Activities</label>
+						<span id="ActivHelpBlock" class="form-text text-muted">
+						For each sample indicate the measured biological activity, in the range [0 ... 1].</span>
+						<table id="activities" class="table table-striped table-bordered" style="width:100%">
+							<thead class="thead-dark">
+								<tr>
+									<th>Sample</th>
+									<th>Activity</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>Sample 1</td>
+									<td><input type="text" id="row-1-activity" name="row-1-activity" value="0.11"></td>
+								</tr>
+								<tr>
+									<td>Sample 2</td>
+									<td><input type="text" id="row-1-activity" name="row-1-activity" value="0.98"></td>
+								</tr>
+								<tr>
+									<td>Sample 3</td>
+									<td><input type="text" id="row-1-activity" name="row-1-activity" value="0.0"></td>
+								</tr>
+								<tr>
+									<td>Sample 4</td>
+									<td><input type="text" id="row-1-activity" name="row-1-activity" value="0.0"></td>
+								</tr>
+								<tr>
+									<td>Sample 5</td>
+									<td><input type="text" id="row-1-activity" name="row-1-activity" value="0.0"></td>
+								</tr>
+								<tr>
+									<td>Sample 6</td>
+									<td><input type="text" id="row-1-activity" name="row-1-activity" value="0.4"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="row" style=";padding-right: 8px;padding-left: 8px;padding-top: 8px">
+				<div class="col-md-12" style=";padding-right: 15px;padding-left: 15px">
+					<H3><strong>Analysis</strong></H3>
+					<span id="AnalHelpBlock" class="form-text text-muted">Two Analysis methods are proposed:</span>
+					<H4>Direct Comparison</H4>
+					<span id="DirectHelpBlock" class="form-text text-muted">
+						A sample to sample comparison using difference maps, which highlights the specific signals
+					</span>
+					<div class="form-group">
+					<label for="dataset1">Most Active</label> 
+						<div>
+							<select id="dataset1" name="dataset1" class="custom-select" aria-describedby="Direct1HelpBlock" required="required">
+							<option value="Sample_1">Sample 1</option>
+							<option value="Sample_2">Sample 2</option>
+							<option value="Sample_3">Sample 3</option>
+							<option value="Sample_4">Sample 4</option>
+							<option value="Sample_5">Sample 5</option>
+							<option value="Sample_6">Sample 6</option>
+							</select> 
+						</div>
+					</div>
+					<div class="form-group">
+					<label for="dataset2">Most Inactive</label> 
+						<div>
+							<select id="dataset2" name="dataset2" class="custom-select" aria-describedby="Direct2HelpBlock" required="required">
+							<option value="Sample_1">Sample 1</option>
+							<option value="Sample_2">Sample 2</option>
+							<option value="Sample_3">Sample 3</option>
+							<option value="Sample_4">Sample 4</option>
+							<option value="Sample_5">Sample 5</option>
+							<option value="Sample_6">Sample 6</option>
+							</select> 
+						</div>
+					</div>
+					<H4>Proportionality Response</H4>
+					<span id="PropHelpBlock" class="form-text text-muted">
+						The whole DataSet is used to extract the spectral features correlated to the activity.
+					</span>
+					<div class="form-group">
+						<H5>Activities Correction</H5>
+						<label for="A">Slope</label><span><input name="A" type="text" class="form-control" id="A" value="0.5"></span>
+						<label for="B">Offset</label><span><input name="B" type="text" class="form-control" id="B" value="0.2"></span>
+					</div>
+					<H4>Reference Spectrum</H4>
+					<span id="datarefHelpBlock" class="form-text text-muted">
+						If available, the spectrum of a Reference spectrum can be superimposed to help the analysis.
+					</span>
+					<div class="form-group">
+						<label for="dataref">Reference</label> 
+						<div>
+							<select id="dataref" name="dataref" class="custom-select" aria-describedby="datarefHelpBlock" required="required">
+							<option value="None">None</option>
+							<option value="Sample_1">Sample 1</option>
+							<option value="Sample_2">Sample 2</option>
+							<option value="Sample_3">Sample 3</option>
+							<option value="Sample_4">Sample 4</option>
+							<option value="Sample_5">Sample 5</option>
+							<option value="Sample_6">Sample 6</option>
+							</select> 
+						</div>
+					</div>
+					<div class="form-group" style="text-align: right;">
+						<button name="submit" type="submit" class="btn btn-success" >Show</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
