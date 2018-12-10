@@ -4,11 +4,17 @@ The following code contains all the routines used in the analysis of the 2D buck
 The LM version contains improvements for great and faster homonuclear and heteronuclear spectra displays
 L Margueritte & M-A Delsuc,  
 """
+from __future__ import print_function
 
-from BucketUtilities import *
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
 import glob
 from os import path as op
 import xarray as xr
+from BucketUtilities import nettoie, nettoie_mieux, nettoie_encore_mieux, symetrise, get_contour_data, affiche
 
 NETMODE = 'mieux' # standard / mieux / encore
 
@@ -65,7 +71,7 @@ class StatSeries():
 
 class StatSpectrum():
     """package all information from buckets into one single object"""
-    def __init__(self, epath, net=False, sym=False, manip_mode='homonuclear'):
+    def __init__(self, epath, net=False, sym=False, manip_mode='homonuclear', normalize=False, extend=True):
         self.epath = epath
         # SMARTE_v3/Results/ARTEref_161123/2D/dipsi2phpr_20_bucketlist.csv
         self.name = epath.split(op.sep)[2]
@@ -74,7 +80,9 @@ class StatSpectrum():
         self.manip_mode = manip_mode
         self.Xr1 = None
         self.Yr1 = None
-        self.Zr1 = []
+#        self.Zr1 = []  # usefull ?
+        self.normalize = normalize
+        self.extend = extend
         self.loadResult2D()
         self.F1_values = self.xu1
         self.F2_values = self.yu1
@@ -86,18 +94,14 @@ class StatSpectrum():
         sym: whether symetrisation is used
         """
         # read the file - build axes
-        ne1 = pd.read_csv( self.epath, header=1, sep = ', ', engine='python')
-        x1 = np.array(ne1['centerF1'])
-        self.xu1 = np.unique(x1)
-        y1 = np.array(ne1['centerF2'])
-        self.yu1 = np.unique(y1)
-        # read data
-        self.keys = ne1.keys()[2:-2] # remove 2 first (coordinates) and 2 last (sizes)
-        netmode = NETMODE
-        z_accu = []
-        for k in self.keys:
-            z1 = ne1[k].values.reshape((len(self.xu1), len(self.yu1)))
-            if self.net:
+        def clean(arr, nett):
+            "used to normalize, clean (if nett is True), and symmetrize the array"
+            if self.normalize:
+                z1 = arr/arr.max()
+            else:
+                z1 = arr
+            z1 = z1.values.reshape((len(self.xu1), len(self.yu1)))
+            if nett:
                 if netmode=='standard':
                     z1 = nettoie(z1)
                 elif netmode=='mieux':
@@ -108,10 +112,27 @@ class StatSpectrum():
                     raise Exception(netmode + ' : Wrong netmode !')
             if self.sym and self.manip_mode == 'homonuclear':
                     z1 = symetrise(z1)
-            z_accu.append(np.nan_to_num(z1))
+            return np.nan_to_num(z1)
+        # load
+        ne1 = pd.read_csv( self.epath, header=1, sep = ', ', engine='python')
+        x1 = np.array(ne1['centerF1'])
+        self.xu1 = np.unique(x1)
+        y1 = np.array(ne1['centerF2'])
+        self.yu1 = np.unique(y1)
+        # read data
+        netmode = NETMODE
+        zd_accu = {}   # used to build final xarray
+        for k in ne1.keys()[2:-2]: # remove 2 first (coordinates) and 2 last (sizes)
+            zd_accu[k] = clean(ne1[k], self.net)
+        if self.extend:
+            zd_accu["bucket_x_std"] = clean( ne1["bucket"] * ne1['std'], self.net)
+            zd_accu["bucket_d_std"] = clean( ne1["bucket"] / ne1['std'], self.net)
+            zd_accu["log_bucket"] = clean( np.log(abs(ne1["bucket"])), False )
+            zd_accu["log_std"] = clean( np.log(ne1["std"]), False )
         # matrix calculation
-        self.Zr1 = np.array(z_accu)
-        self.Data = xr.DataArray(self.Zr1,
+        Zr1 = np.array(list(zd_accu.values())) 
+        self.keys = pd.Index(zd_accu.keys())
+        self.Data = xr.DataArray(Zr1,
             dims=('type','F1','F2'),
             coords={'type':self.keys, 'F1':self.xu1, 'F2':self.yu1})
     
