@@ -20,13 +20,14 @@ NETMODE = 'mieux' # standard / mieux / encore
 
 class StatSeries():
     """to store a series of StatSpectrum()"""
-    def __init__(self, folder, data_name, data_name2, activities, manip_mode='TOCSY', dataref=None, sym=True, net=True, debug=True):   # load all datasets
+    def __init__(self, folder, data_name, data_name2, activities, manip_mode='TOCSY', dataref=None, sym=True, net=True, normalize=False, debug=True):   # load all datasets
         """
         folder : where are the datasets (Results/)
         manip : which to load - the begin of the names (dipsi cosy hsqc ...)
         data_name : which to keep data_name2, activities
         """
         self.Series = []
+        self.keys = None
         self.reference = None
         self.manip_mode = manip_mode
         self.folder = folder
@@ -49,10 +50,10 @@ class StatSeries():
             seqname = op.basename(n)
             if any( (seqname.startswith(manip) for manip in maniplist ) ):
                 if dataref in n:
-                    self.reference = StatSpectrum(n, sym=sym, net=net, manip_mode=mode)
+                    self.reference = StatSpectrum(n, sym=sym, net=net, normalize=normalize, manip_mode=mode)
                     if debug: print("loaded %s\n   as reference"%n)
                 else:
-                    self.Series.append( StatSpectrum(n, sym=sym, net=net, manip_mode=mode) )
+                    self.Series.append( StatSpectrum(n, sym=sym, net=net, normalize=normalize, manip_mode=mode) )
                     if debug: print("loaded %s"%n)
                     if data_name in n:
                         self.data1 = self.Series[-1]
@@ -62,6 +63,10 @@ class StatSeries():
                         self.data2 = self.Series[-1]
                         self.indexdata2 = len(self.Series)-1
                         if debug: print("   as data2")
+                    if self.keys is None:
+                        self.keys = self.Series[-1].keys
+                    elif (self.keys != self.Series[-1].keys).any():
+                        print("** WARNING, DATA Series %s is not homogeneous"%(folder))
         # set parameters
         self.activities = activities
         self.Y = activities
