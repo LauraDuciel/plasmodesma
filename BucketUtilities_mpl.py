@@ -49,7 +49,7 @@ class StatSeries():
         for n in sorted( glob.glob( op.join(folder, '*', '2D', '*_bucketlist.csv' ))):
             seqname = op.basename(n)
             if any( (seqname.startswith(manip) for manip in maniplist ) ):
-                if dataref in n:
+                if dataref is not None and dataref in n:
                     self.reference = StatSpectrum(n, sym=sym, net=net, normalize=normalize, manip_mode=mode)
                     if debug: print("loaded %s\n   as reference"%n)
                 else:
@@ -132,8 +132,15 @@ class StatSpectrum():
         if self.extend:
             zd_accu["bucket_x_std"] = clean( ne1["bucket"] * ne1['std'], self.net)
             zd_accu["bucket_d_std"] = clean( ne1["bucket"] / ne1['std'], self.net)
+            zd_accu["min_max"] = clean( ne1["max"] - ne1['min'], self.net)
             zd_accu["log_bucket"] = clean( np.log(abs(ne1["bucket"])), False )
             zd_accu["log_std"] = clean( np.log(ne1["std"]), False )
+            zd_accu["log_min_max"] = clean( np.log(ne1["max"] - ne1['min']), False)
+            try:
+                zd_accu["nbpk_x_std"] = clean( ne1["peaks_nb"] * ne1['std'], self.net)
+                zd_accu["nbpk_x_log_std"] = clean( ne1["peaks_nb"] *  np.log(ne1['std']), False)
+            except:
+                print('Skipping nbpk entries')
         # matrix calculation
         Zr1 = np.array(list(zd_accu.values())) 
         self.keys = pd.Index(zd_accu.keys())
