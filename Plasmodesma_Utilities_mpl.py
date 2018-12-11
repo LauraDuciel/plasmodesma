@@ -227,6 +227,8 @@ class AnalysisPlots_mpl(object):
         dbk_ctrl['y_axis_label'] = u"Activity"
         dbk_ctrl['x_range'] = Range1d(-0.01, 1.01)
         dbk_ctrl['y_range'] = Range1d(-0.01, 1.01)
+        dbk_ctrl['plot_width'] = 420 
+        dbk_ctrl['plot_height'] = 200
         self.plot_control = figure(**dbk_ctrl, title=self.name+" Y Correction")
         self.plot_control.line(x='line_x',y='line_y',line_width=2,source=self.source_correc_line)
         self.plot_control.circle(x='points_x',y='points_y',color='red', size=10, source=self.source_correc_points)
