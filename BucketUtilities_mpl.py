@@ -28,7 +28,7 @@ class StatSeries():
         """
         self.Series = []
         self.keys = None
-        self.reference = None
+        self.reference = []
         self.manip_mode = manip_mode
         self.folder = folder
         # load experiments
@@ -49,9 +49,10 @@ class StatSeries():
         for n in sorted( glob.glob( op.join(folder, '*', '2D', '*_bucketlist.csv' ))):
             seqname = op.basename(n)
             if any( (seqname.startswith(manip) for manip in maniplist ) ):
-                if dataref is not None and dataref in n:
-                    self.reference = StatSpectrum(n, sym=sym, net=net, normalize=normalize, manip_mode=mode)
-                    if debug: print("loaded %s\n   as reference"%n)
+                if dataref is not None and \
+                    any( (iref in n for iref in dataref) ):
+                        self.reference.append(StatSpectrum(n, sym=sym, net=net, normalize=normalize, manip_mode=mode))
+                        if debug: print("loaded %s\n   as reference"%n)
                 else:
                     self.Series.append( StatSpectrum(n, sym=sym, net=net, normalize=normalize, manip_mode=mode) )
                     if debug: print("loaded %s"%n)

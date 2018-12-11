@@ -54,6 +54,26 @@ def LinRegression(X, Y, D1, D2, nfeatures=100):
     m = m.reshape((len(D1),len(D2)))
     return (D1, D2, m)
 
+def ridge(X,Y,D1,D2,nfeatures=100):
+    """
+    Performs ridge regression
+    """
+    ridge = linear_model.Ridge(alpha = 7)
+    ridge.fit(X,Y)
+    m = HTproj(ridge.coef_, nfeatures)
+    m = m.reshape((len(D1),len(D2)))
+    return(D1,D2,m)
+
+def elasticnet(X,Y,D1,D2,nfeatures=100):
+    """
+    performs elastic net regression
+    """
+    elasticnet = linear_model.ElasticNet(alpha = .01)
+    elasticnet.fit(X,Y)
+    m = HTproj(elasticnet.coef_, nfeatures)
+    m = m.reshape((len(D1),len(D2)))
+    return(D1,D2,m)
+
 def RecurFeatElim(X, Y, D1, D2, nfeatures=100):
     """
     Performs RFE analysis from scikit learn between name and name2 datasets.
@@ -87,6 +107,8 @@ def default_plot_settings(manip_mode):
     dbk['x_axis_label'] = u"δ (ppm)"
     dbk['y_axis_label'] = u"δ (ppm)"
     dbk['x_range'] = Range1d(10, 0)
+    dbk['plot_width'] = 420 
+    dbk['plot_height'] = 420
     if manip_mode in ("TOCSY","COSY","homonuclear"):
         dbk['y_range'] = Range1d(10, 0)
     elif manip_mode in ("HSQC", "heteronuclear"):
@@ -155,7 +177,7 @@ class BokehApp_Slider_Plot_mpl(object):
             display = self.display
         new_data = BokehApp_Slider_Plot_mpl(StatSpect2, display, dbk=self.dbk, cmap=cmap, title=title, levels=levels)
         self.plot.multi_line(xs='xs', ys='ys', color='color', source=new_data.source)
-        self.widget = column(new_data.scale_slider, self.scale_slider, self.plot)
+        self.widget = column(new_data.scale_slider, self.widget)
 
 class AnalysisPlots_mpl(object):
     """
@@ -180,7 +202,7 @@ class AnalysisPlots_mpl(object):
         else:
             self.name = title 
         self.slider_start = 0
-        self.slider_end = 500
+        self.slider_end = 900
         self.slider_step = 5
         if levels is None:
             self.levels = np.array([0.5,1,2,5,10,20,50,100])
@@ -248,6 +270,12 @@ class AnalysisPlots_mpl(object):
         elif self.analysismode == "LogisticRegr":
             xs,ys,col = BU.affiche_contour(*(LogisticRegr(self.X, ReY, self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), 
                                             cmap=self.colormap, levelbase=self.levels)
+        elif self.analysismode == "RidgeReg":
+            xs,ys,col = BU.affiche_contour(*(ridge(self.X, ReY, self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), 
+                                            cmap=self.colormap, levelbase=self.levels)
+        elif self.analysismode == "ElasticNet":
+            xs,ys,col = BU.affiche_contour(*(elasticnet(self.X, ReY, self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), 
+                                            cmap=self.colormap, levelbase=self.levels)
         else:
             raise Exception("WRONG MODE")
         return xs,ys,col
@@ -284,9 +312,9 @@ class AnalysisPlots_mpl(object):
             display = self.display
         new_data = BokehApp_Slider_Plot_mpl(StatSpect2, display, dbk=self.dbk, cmap=cmap, title=title, levels=levels)
         self.plot.multi_line(xs='xs', ys='ys', color='color', source=new_data.source)
-        self.widget = column(new_data.scale_slider, self.nfeatures_slider, self.A_slider, self.B_slider, self.plot, self.plot_control)
+        self.widget = column(new_data.scale_slider, self.widget)
 
-def mpl_create_app(doc, folder, data_name, data_name2, activities, display=["std"], manip_mode='TOCSY', dataref=None, netmode='mieux', correction=True, B=0.5, A=0.1,sym=True,net=True,nfeatures=100, debug=False):
+def mpl_create_app(doc, folder, data_name, data_name2, activities, display=["std"], manip_mode='TOCSY', dataref=None, normalize=False, netmode='mieux', correction=True, B=0.5, A=0.1,sym=True,net=True,nfeatures=100, debug=False):
     """
     This function creates the complete bokeh application for Plasmodesma results analysis.
     - doc is the current document in which the app is made.
@@ -299,7 +327,7 @@ def mpl_create_app(doc, folder, data_name, data_name2, activities, display=["std
     """
     BU.NETMODE = netmode
 
-    FullData = BU.StatSeries(folder, data_name, data_name2, activities, manip_mode=manip_mode, dataref=dataref, sym=sym, net=net)   # load all datasets
+    FullData = BU.StatSeries(folder, data_name, data_name2, activities, manip_mode=manip_mode, dataref=dataref, sym=sym, net=net, normalize=normalize)   # load all datasets
     if debug:
         print( FullData.activities )
         print( FullData.data1.epath )
@@ -324,21 +352,27 @@ def mpl_create_app(doc, folder, data_name, data_name2, activities, display=["std
 
     GraphRFE =  AnalysisPlots_mpl(FullData, display[0], nfeatures, A, B, analysismode="RFE", dbk=Graph1.dbk)
     GraphLinReg = AnalysisPlots_mpl(FullData, display[0], nfeatures, A, B, analysismode="LinReg", dbk=Graph1.dbk)
-
+    GraphRidge = AnalysisPlots_mpl(FullData, display[0], nfeatures, A, B, analysismode="RidgeReg", dbk=Graph1.dbk)
+    Graphelasticnet = AnalysisPlots_mpl(FullData, display[0], nfeatures, A, B, analysismode="ElasticNet", dbk=Graph1.dbk)
     # GraphLogistReg =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="LogisticRegr",dbk=Graph1.dbk, title="Logisitic Regression")
 
 
     if dataref is not None:
-        GraphRatio.add_multiline(FullData.reference, display='bucket', title="Reference", cmap=cm.autumn, levels=[1])
-        GraphSubstract.add_multiline(FullData.reference, display='bucket', title="Reference", cmap=cm.autumn, levels=[1])
-        GraphRFE.add_multiline(FullData.reference, display='bucket', title="Reference", cmap=cm.autumn, levels=[1])
-        GraphLinReg.add_multiline(FullData.reference, display='bucket', title="Reference", cmap=cm.autumn, levels=[1])
-    #    GraphLogistReg.add_multiline(FullData.reference, display='bucket', title="Reference", cmap=cm.autumn, levels=[1])
+        i=0
+        colors = [cm.autumn,cm.summer,cm.spring,cm.winter,cm.GnBu]
+        for i in range(0,len(dataref)):
+            GraphRatio.add_multiline(FullData.reference[i], display='bucket', title=dataref[i], cmap=colors[i], levels=[1])
+            GraphSubstract.add_multiline(FullData.reference[i], display='bucket', title=dataref[i], cmap=colors[i], levels=[1])
+            GraphRFE.add_multiline(FullData.reference[i], display='bucket', title=dataref[i], cmap=colors[i], levels=[1])
+            GraphLinReg.add_multiline(FullData.reference[i], display='bucket', title=dataref[i], cmap=colors[i], levels=[1])
+            GraphRidge.add_multiline(FullData.reference[i], display='bucket', title=dataref[i], cmap=colors[i], levels=[1])
+            Graphelasticnet.add_multiline(FullData.reference[i], display='bucket', title=dataref[i], cmap=colors[i], levels=[1])
+        #    GraphLogistReg.add_multiline(FullData.reference, display='bucket', title="Reference", cmap=cm.autumn, levels=[1])
 
     # Set up layouts and add to document
     tab1 = Panel(child=column(row(Graph1.widget, Graph2.widget),row(GraphRatio.widget, GraphSubstract.widget)), 
                  title="Visualization")
-    tab2 = Panel(child=column(row(GraphRFE.widget, GraphLinReg.widget)), title="Global Analysis")
+    tab2 = Panel(child=column(row(GraphRFE.widget, GraphLinReg.widget), row(GraphRidge.widget,Graphelasticnet.widget)), title="Global Analysis")
     
     doc.add_root(Tabs(tabs=[tab1, tab2]))
     doc.title = folder
@@ -348,8 +382,6 @@ def mpl_create_app(doc, folder, data_name, data_name2, activities, display=["std
                 background_fill_color: "#DDDDDD"
                 outline_line_color: white
                 toolbar_location: right
-                height: 500
-                width: 500
             Grid:
                 grid_line_dash: [6, 4]
                 grid_line_color: white
