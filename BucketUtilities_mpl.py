@@ -14,7 +14,7 @@ import matplotlib.cm as cm
 import glob
 from os import path as op
 import xarray as xr
-from BucketUtilities import nettoie, nettoie_mieux, nettoie_encore_mieux, symetrise, get_contour_data, affiche
+#from BucketUtilities import nettoie, nettoie_mieux, nettoie_encore_mieux, symetrise, get_contour_data, affiche
 
 NETMODE = 'mieux' # standard / mieux / encore
 
@@ -154,3 +154,86 @@ class StatSpectrum():
 
 def affiche_contour(*arg, **kwarg):
     return get_contour_data(affiche(*arg, **kwarg))
+def get_contour_data(ax):
+    """
+    Get informations about contours created by matplotlib.
+    ax is the input matplotlob contour ax (cf. fig,ax produced by matplotlib)
+    xs and ys are the different contour lines got out of the matplotlib. col is the color corresponding to the lines.
+    """
+    xs = []
+    ys = []
+    col = []
+    isolevelid = 0
+    for isolevel in ax.collections:
+        isocol = isolevel.get_color()[0]
+        thecol = 3 * [None]
+        theiso = str(ax.collections[isolevelid].get_array())
+        isolevelid += 1
+        for i in range(3):
+            thecol[i] = int(255 * isocol[i])
+        thecol = '#%02x%02x%02x' % (thecol[0], thecol[1], thecol[2])
+        for path in isolevel.get_paths():
+            v = path.vertices
+            x = v[:, 0]
+            y = v[:, 1]
+            xs.append(x.tolist())
+            ys.append(y.tolist())
+            col.append(thecol)
+    return xs, ys, col
+def affiche(X, Y, Z, scale=1.0, new=True, cmap=None, reverse=True, figsize=(10, 8), draw=False,levelbase=[0.5,1,2,5,10,20,50,100]) :
+    """draw the 2D bucket list of homonuclear experiment
+    To display two spectra in the same picture, use the parameters : new
+    cmap : colormap of matplotlib, example : cm.winter or cm.spring"""
+    if new:
+        f1, ax = plt.subplots()
+    else:
+        ax = plt.gca()
+#   else should be a drawable matplotlib axis.
+    m1 = Z.max()
+    level = [m1*(i/100.0)/scale for i in levelbase ]
+    ax.contour(Y, X, Z, level, cmap=cmap)
+    if draw:
+        ax.set_xlabel(r"$\delta  (ppm)$")
+        ax.set_ylabel(r"$\delta  (ppm)$")
+        ax.yaxis.set_label_position('right')
+        major_ticks = np.arange(0, 9.5, 0.5)
+        minor_ticks = np.arange(0, 9.5, 0.1)
+        ax.yaxis.set_ticks_position('right')
+        ax.set_xticks(major_ticks)
+        ax.set_xticks(minor_ticks, minor =True)
+        ax.set_yticks(major_ticks)
+        ax.set_yticks(minor_ticks, minor=True)
+    if reverse:
+        ax.invert_xaxis()
+        ax.invert_yaxis()
+    plt.close(f1)
+    return ax
+def symetrise(ZZ):
+    "symetrisation os spectra - simple minimum operation"
+    return np.minimum(ZZ, ZZ.T)
+
+def nettoie(ZZ, factor=2.0):
+    " clean noise in matrix - hard thresholding"
+    ZZr = ZZ.copy()
+    thresh = factor*np.median(ZZ)
+    print( thresh)
+    ZZr[ZZ<thresh] = 1.0   # 1.0 allows to display log(Z) !
+    return ZZr
+
+def nettoie_mieux(ZZ, factor=2.0):
+    " clean noise in matrix - hard thresholding columnwise"
+    ZZr = ZZ.copy()
+    for i in range(ZZ.shape[1]):
+        iZZ = ZZ[:,i]
+        thresh = factor*np.median(iZZ)
+        ZZr[iZZ<thresh,i] = 1.0
+    return ZZr
+
+def nettoie_encore_mieux(ZZ, factor=2.0):
+    " clean noise in matrix - soft thresholding columnwise"
+    ZZr = ZZ.copy()
+    for i in range(ZZ.shape[1]):
+        iZZ = ZZ[:,i]
+        thresh = factor*np.median(iZZ)
+        ZZr[:,i] = np.where(iZZ<thresh, 1, iZZ-thresh+1) 
+    return ZZr

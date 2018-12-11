@@ -64,16 +64,6 @@ def ridge(X,Y,D1,D2,nfeatures=100):
     m = m.reshape((len(D1),len(D2)))
     return(D1,D2,m)
 
-def elasticnet(X,Y,D1,D2,nfeatures=100):
-    """
-    performs elastic net regression
-    """
-    elasticnet = linear_model.ElasticNet(alpha = .01)
-    elasticnet.fit(X,Y)
-    m = HTproj(elasticnet.coef_, nfeatures)
-    m = m.reshape((len(D1),len(D2)))
-    return(D1,D2,m)
-
 def RecurFeatElim(X, Y, D1, D2, nfeatures=100):
     """
     Performs RFE analysis from scikit learn between name and name2 datasets.
@@ -102,7 +92,7 @@ def default_plot_settings(manip_mode):
     """
     This function is used to create a default setup for creating NMR bokeh plot.
     """
-    TOOLS = "pan, box_zoom, undo, redo, reset, save"
+    TOOLS = "pan, box_zoom, hover, undo, redo, reset, save"
     dbk = {'tools': TOOLS}
     dbk['x_axis_label'] = u"δ (ppm)"
     dbk['y_axis_label'] = u"δ (ppm)"
@@ -209,9 +199,9 @@ class AnalysisPlots_mpl(object):
         else:
             self.levels = levels  
         #Building Sliders
-        self.A_slider = slider(title="A", value=A, start=0.1, end=1, step=0.01)
+        self.A_slider = slider(title="A", value=A, start=0, end=1, step=0.01)
 
-        self.B_slider = slider(title="B", value=B, start=0.1, end=1, step=0.01)
+        self.B_slider = slider(title="B", value=B, start=0, end=1, step=0.01)
 
         self.nfeatures_slider = slider(title="N Features Kept", value=nfeatures, start=self.slider_start, end=self.slider_end, step=self.slider_step)
 
@@ -274,9 +264,6 @@ class AnalysisPlots_mpl(object):
                                             cmap=self.colormap, levelbase=self.levels)
         elif self.analysismode == "RidgeReg":
             xs,ys,col = BU.affiche_contour(*(ridge(self.X, ReY, self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), 
-                                            cmap=self.colormap, levelbase=self.levels)
-        elif self.analysismode == "ElasticNet":
-            xs,ys,col = BU.affiche_contour(*(elasticnet(self.X, ReY, self.D1, self.D2, nfeatures=self.nfeatures_slider.value)), 
                                             cmap=self.colormap, levelbase=self.levels)
         else:
             raise Exception("WRONG MODE")
@@ -355,8 +342,7 @@ def mpl_create_app(doc, folder, data_name, data_name2, activities, display=["std
     GraphRFE =  AnalysisPlots_mpl(FullData, display[0], nfeatures, A, B, analysismode="RFE", dbk=Graph1.dbk)
     GraphLinReg = AnalysisPlots_mpl(FullData, display[0], nfeatures, A, B, analysismode="LinReg", dbk=Graph1.dbk)
     GraphRidge = AnalysisPlots_mpl(FullData, display[0], nfeatures, A, B, analysismode="RidgeReg", dbk=Graph1.dbk)
-    Graphelasticnet = AnalysisPlots_mpl(FullData, display[0], nfeatures, A, B, analysismode="ElasticNet", dbk=Graph1.dbk)
-    # GraphLogistReg =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="LogisticRegr",dbk=Graph1.dbk, title="Logisitic Regression")
+  # GraphLogistReg =  AnalysisPlots(X=X,Y=Y,D1=Im1, D2=Im2, nfeatures=nfeatures,manip_mode=manip_mode, mode="LogisticRegr",dbk=Graph1.dbk, title="Logisitic Regression")
 
 
     if dataref is not None:
@@ -368,13 +354,12 @@ def mpl_create_app(doc, folder, data_name, data_name2, activities, display=["std
             GraphRFE.add_multiline(FullData.reference[i], display='bucket', title=dataref[i], cmap=colors[i], levels=[1])
             GraphLinReg.add_multiline(FullData.reference[i], display='bucket', title=dataref[i], cmap=colors[i], levels=[1])
             GraphRidge.add_multiline(FullData.reference[i], display='bucket', title=dataref[i], cmap=colors[i], levels=[1])
-            Graphelasticnet.add_multiline(FullData.reference[i], display='bucket', title=dataref[i], cmap=colors[i], levels=[1])
-        #    GraphLogistReg.add_multiline(FullData.reference, display='bucket', title="Reference", cmap=cm.autumn, levels=[1])
+      #    GraphLogistReg.add_multiline(FullData.reference, display='bucket', title="Reference", cmap=cm.autumn, levels=[1])
 
     # Set up layouts and add to document
     tab1 = Panel(child=column(row(Graph1.widget, Graph2.widget),row(GraphRatio.widget, GraphSubstract.widget)), 
                  title="Visualization")
-    tab2 = Panel(child=column(row(GraphRFE.widget, GraphLinReg.widget), row(GraphRidge.widget,Graphelasticnet.widget)), title="Global Analysis")
+    tab2 = Panel(child=column(row(GraphRFE.widget, GraphLinReg.widget), row(GraphRidge.widget)), title="Global Analysis")
     
     doc.add_root(Tabs(tabs=[tab1, tab2]))
     doc.title = folder
