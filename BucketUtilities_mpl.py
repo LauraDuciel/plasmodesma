@@ -18,6 +18,25 @@ import xarray as xr
 
 NETMODE = 'mieux' # standard / mieux / encore
 
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+class ModeError(Error):
+    """Exception raised for errors when reading parameters."""
+    def __init__(self, message):
+        self.message = message
+
+class ExpError(Error):
+    """Exception raised for errors when reading parameters."""
+    def __init__(self, message):
+        self.message = message
+
+class ParamError(Error):
+    """Exception raised for errors when reading parameters."""
+    def __init__(self, message):
+        self.message = message
+
 class StatSeries():
     """to store a series of StatSpectrum()"""
     def __init__(self, folder, data_name, data_name2, activities, manip_mode='TOCSY', dataref=None, sym=True, net=True, normalize=False, debug=True):   # load all datasets
@@ -31,6 +50,8 @@ class StatSeries():
         self.reference = []
         self.manip_mode = manip_mode
         self.folder = folder
+        self.data1 = None
+        self.data2 = None
         # load experiments
         if manip_mode == 'TOCSY':
             maniplist = ['dipsi', 'mlev', 'towny']
@@ -45,7 +66,7 @@ class StatSeries():
             maniplist = ['hsqc', 'hmbc']
             mode = 'heteronuclear'
         else:
-            raise Exception('wrong mode, use only one of HSQC, COSY, TOCSY, DOSY')
+            raise ModeError("wrong mode, use only one of HSQC, COSY, TOCSY, DOSY")
         for n in sorted( glob.glob( op.join(folder, '*', '2D', '*_bucketlist.csv' ))):
             seqname = op.basename(n)
             if any( (seqname.startswith(manip) for manip in maniplist ) ):
@@ -71,6 +92,19 @@ class StatSeries():
         # set parameters
         self.activities = activities
         self.Y = activities
+        if len(self.Series) == 0:
+            raise ExpError("No experiments found - check your path and filenames")
+        if len(self.Series) < 2:
+            raise ExpError("Number of experiments should be larger than 2.")
+        if len(self.Series) != len(self.Y):
+            raise ParamError("Number of activity values does not match number of experiments.")
+        if dataref is not None and len(dataref) != len(self.reference):
+            print("** WARNING, Not all reference experiments found")
+        if self.data1 is None:
+            raise ExpError("No data1 experiment found - check your path and filenames")
+        if self.data2 is None:
+            raise ExpError("No data2 experiment found - check your path and filenames")
+        print("Loaded %d experiments in memory"%(len(self.reference)+len(self.Series)))
     def X(self, key):
         """return a preformated array, ready for scikit-learn RegLin"""
         return np.array([ d.Data.loc[key].values.ravel() for d in self.Series ])
@@ -115,7 +149,7 @@ class StatSpectrum():
                 elif netmode=='encore':
                     z1 = nettoie_encore_mieux(z1)
                 else:
-                    raise Exception(netmode + ' : Wrong netmode !')
+                    raise ParamError(netmode + ' : Wrong netmode !')
             if self.sym and self.manip_mode == 'homonuclear':
                     z1 = symetrise(z1)
             return np.nan_to_num(z1)
