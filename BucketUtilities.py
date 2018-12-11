@@ -169,7 +169,7 @@ def affiche(X, Y, Z, scale=1.0, new=True, cmap=None, reverse=True, figsize=(10, 
 #   else should be a drawable matplotlib axis.
     m1 = Z.max()
     level = [m1*(i/100.0)/scale for i in levelbase ]
-    ax.contour(X, Y, Z, level, cmap=cmap)
+    ax.contour(Y, X, Z, level, cmap=cmap)
     if draw:
         ax.set_xlabel(r"$\delta  (ppm)$")
         ax.set_ylabel(r"$\delta  (ppm)$")
@@ -194,7 +194,7 @@ def affiche2(X, Y, Z, scale=1.0, new=True, cmap=None, reverse=True,draw=False,le
         ax1 = plt.gca()
     m1 = Z.max()
     level = [m1*(i/100.0)/scale for i in levelbase ]
-    ax1.contour(X, Y, Z, level, cmap= cmap)
+    ax1.contour(Y, X, Z, level, cmap= cmap)
     if draw:
         ax1.set_xlabel(r"$\delta  (ppm)$")
         ax1.set_ylabel(r'$\delta  (ppm)$')
@@ -220,7 +220,7 @@ def affichegrid(X, Y, Z, scale=1.0, new=True, cmap=None, reverse=True):
     levelbase = [0.5,1,2,5,10,20,50,100]
     m1 = Z.max()
     level = [m1*(i/100.0)/scale for i in levelbase ]
-    ax1.contour(X, Y, Z, level, cmap= cmap)
+    ax1.contour(Y, X, Z, level, cmap= cmap)
     ax1.set_xlabel(r"$\delta  (ppm)$")
     ax1.set_ylabel(r'$\delta  (ppm)$')
     major_ticks = np.arange(0, 10, 0.5)
