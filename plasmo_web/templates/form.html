@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<p><em>This program will only work for experiment ...</em></p>
+    
+<ul>
+    <li> Acquire your...(check the <a href="HowTo.html" title="How-To">How-To</a> for hints on ...).</li>
+    <li> create a zipfile containing ... </li>
+</ul>
+
+<h3>Remarks</h3>
+<ul>
+
+</ul>
+
+<!--Exemple de formulaire simple sans bootstrap en cas de besoin.
+Comprends un champ pour l'email, pour upload un fichier, pour 1 paramètre texte et pour 1 liste déroulante.
+    <form method="POST" enctype=multipart/form-data action="">
+    <p>Email : <input type="email" name="email" autofocus/></p>
+    <p>Paramètre 1 : <input type="text" name="param1"></p>
+    <p>Paramètre 2 : <select name="param2">
+    <option value="Red">Force rouge</option>
+    <option value="Green">Force bleue</option>
+    <option value="Green">Force verte</option>
+    </select></p>
+    <p>Données à analyser : <input type="file" name="file"></p>
+    <input type="submit" value="Upload">
+    </form>
+-->
+
+<!--formulaire avec bootstrap (plus joli mais plus complexe)-->
+<form method="POST" enctype=multipart/form-data action="" id="myform">
+<h3>Your data</h3>
+    <fieldset class="form-group">
+        <label for="exampleInputEmail1" required="true">Email address</label>
+        <input type="email" class="form-control" placeholder="Enter email" name="email" required>
+        <small class="text-muted">Your results will be sent to this address, usually in less than an hour.</small>
+    </fieldset>
+    <fieldset class="form-group">
+        <label for="exampleInputText">Optional comment </label>
+        <input type="text" class="form-control" placeholder="Enter comment", name="Comment">
+   </fieldset>
+    <fieldset class="form-group">
+        <label for="exampleInputFile">Data file input (.zip)</label>
+        <input type="file" class="form-control-file" name="file">
+   </fieldset>
+<hr/>
+<h3>Parameters</h3>
+    <p class="form-control-static">Choose ..</p>
+        <select class="form-control" name="Something">
+          <option value="1">Default value &nbsp; &nbsp; &nbsp;   Blablabla</option>
+        </select>
+        <br>
+<button type="submit" class="btn btn-primary" value="Upload">Submit</button>
+</form>
+{% endblock %}

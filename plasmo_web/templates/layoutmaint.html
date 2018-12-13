@@ -1,0 +1,76 @@
+<!--INFORMATIONS
+This project is a dynamic website to create an interface between remote users and an algorithm on the server that performs DOSY analysis.
+
+This particular file is the layout that wraps every other html page. 
+
+Author : Samuel NICAISE 
+Contact : snicaise@hotmail.fr
+Made during a Master 1 internship (29/02/2016-18/03/2016) at IGBMC
+under Marc-Andre DELSUC supervision: madelsuc@unistra.fr
+-->
+<html>
+  <head>
+<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" > if u prefer to use the cdn-->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <title>{{ title }}</title>
+	<meta http-equiv="X-UA-Compatible" content="IE-Edge"> <!-- does this even matter-->
+  </head>
+  <body>
+      <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+      </script>
+      <script type="text/javascript" async
+        src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+      </script>
+ 
+<div id="globalWrapper"> <!--Sert à pousser le footer au bas de la page-->
+ 
+ <!------
+ En-tête
+ ------>
+<div class="container">
+<h1 class="headTitle"><em>Plasmodesma</em></h1>
+<p><img src="../static/logo-igbmc.png" alt="IGBMC logo" class="headerLogo"/></p>
+</div>
+ 
+<!------
+Navbar
+------>
+ 
+ 
+<!------
+Corps du site
+------>
+	<div class="container" style="font-size:200%;background-color:#faf3be;border-width:2px;border-color:#89c8e2;border-style:solid">
+		{% with messages = get_flashed_messages() %}
+		  {% if messages %}
+			<ul class=flashes style="list-style-type: none;">
+			{% for message in messages %}
+			  <li>{{ message }}</li>
+			{% endfor %}
+			</ul>
+		  {% endif %}
+		{% endwith %}
+	</div>
+	
+	<div class="container">
+		{% block body %}{% endblock %}
+	</div>
+
+</div><!-- globalWrapper -->
+
+<div id="footer">
+  <div class="container">
+    <p class="text-muted credit" style="text-align:center;">Made with <a href="http://getbootstrap.com/">Bootstrap 3</a> and Flask microframework.</p>
+  </div>
+</div>
+
+
+
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>-->
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  </body>
+</html>
+

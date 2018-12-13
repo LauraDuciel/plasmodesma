@@ -1,0 +1,140 @@
+/*Those elements are used to push the footer to the bottom from here...*/
+
+html,body{
+	height:100%;
+}
+#globalWrapper{
+  min-height: 100%;
+  height: auto;
+  /* Negative indent footer by its height */
+  margin: 0 auto -40px;
+  /* Pad bottom by footer height */
+  padding: 0 0 40px;
+}
+
+#footer {
+
+  padding-top:10px;
+  height: 40px;
+  background-color: #b1bac1;
+  border-color:#7490a5; /*#89c8e2;*/
+  background-image: -webkit-gradient(linear, left 0%, left 100%, from(#ffffff), to(#b1bac1));
+  background-image: -webkit-linear-gradient(top, #ffffff, 0%, #b1bac1, 100%);
+  background-image: -moz-linear-gradient(top, #ffffff 0%, #b1bac1 100%);
+  background-image: linear-gradient(to bottom, #ffffff 0%, #b1bac1 100%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe2e6e9', GradientType=0);
+}
+/*... to here*/
+
+/*This makes the form more pretty !*/
+#myform{
+	font-size:14px;
+	font-family:'Open Sans','Helvetica Neue','Helvetica',Arial,Verdana,sans-serif;
+	color:#3c3c3c;
+	max-width:50%;
+	min-width:150px
+}
+
+@media (min-width: 1200px) {
+    #contentWrapperCustom.container{
+        max-width: 970px;
+    }
+}
+
+/*This is needed for header title to be aligned with IGBMC logo*/
+input.inline{
+	display:inline;
+}
+
+.headTitle{
+	float:left;
+	background:white;
+}
+
+.headerLogo{
+	float:right;
+}
+
+.globalWrapper{
+	outline-color:lightgray;
+	background:white;
+}
+
+/* pour la navbar */
+.navbar-custom {
+  background-color: #ced9e2;
+  border-color: #89c8e2;
+  background-image: -webkit-gradient(linear, left 0%, left 100%, from(#ffffff), to(#e2e6e9));
+  background-image: -webkit-linear-gradient(top, #ffffff, 0%, #e2e6e9, 100%);
+  background-image: -moz-linear-gradient(top, #ffffff 0%, #e2e6e9 100%);
+  background-image: linear-gradient(to bottom, #ffffff 0%, #e2e6e9 100%);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe2e6e9', GradientType=0);
+}
+
+.navbar-custom .navbar-brand {
+  color: #16211e;
+}
+.navbar-custom .navbar-brand:hover,
+.navbar-custom .navbar-brand:focus {
+  color: #146dad;
+}
+.navbar-custom .navbar-text {
+  color: #16211e;
+}
+.navbar-custom .navbar-nav > li > a {
+  color: #16211e;
+}
+.navbar-custom .navbar-nav > li > a:hover,
+.navbar-custom .navbar-nav > li > a:focus {
+  color: #146dad;
+}
+.navbar-custom .navbar-nav > .active > a,
+.navbar-custom .navbar-nav > .active > a:hover,
+.navbar-custom .navbar-nav > .active > a:focus {
+  color: #146dad;
+  background-color: #89c8e2;
+}
+.navbar-custom .navbar-nav > .open > a,
+.navbar-custom .navbar-nav > .open > a:hover,
+.navbar-custom .navbar-nav > .open > a:focus {
+  color: #146dad;
+  background-color: #89c8e2;
+}
+.navbar-custom .navbar-toggle {
+  border-color: #89c8e2;
+}
+.navbar-custom .navbar-toggle:hover,
+.navbar-custom .navbar-toggle:focus {
+  background-color: #89c8e2;
+}
+.navbar-custom .navbar-toggle .icon-bar {
+  background-color: #16211e;
+}
+.navbar-custom .navbar-collapse,
+.navbar-custom .navbar-form {
+  border-color: #16211e;
+}
+.navbar-custom .navbar-link {
+  color: #16211e;
+}
+.navbar-custom .navbar-link:hover {
+  color: #146dad;
+}
+
+@media (max-width: 767px) {
+  .navbar-custom .navbar-nav .open .dropdown-menu > li > a {
+    color: #16211e;
+  }
+  .navbar-custom .navbar-nav .open .dropdown-menu > li > a:hover,
+  .navbar-custom .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #146dad;
+  }
+  .navbar-custom .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar-custom .navbar-nav .open .dropdown-menu > .active > a:hover,
+  .navbar-custom .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #146dad;
+    background-color: #89c8e2;
+  }
+}

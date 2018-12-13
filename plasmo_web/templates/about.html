@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% block body %}
+
+
+<h3>Theory</h3>
+A polydisperse sample has to be analysed with a distribution $X(D)$ of diffusion coefficients:
+$$
+    I(q) = \int_{D_{\min}}^{D_{\max}} X(D) exp( -D \Delta q^2 ) dD
+$$
+Determining the distribution $X(D)$ from $I(q)$  requires to solve the Laplace inversion of the $q^2$ dependence of $I(q)$.
+
+<p>Given that the experiment was performed over a series of $M$ values of $q$ and measured as a series of intensities $y_m$ for one given chemical shift value.
+The problem stated by the equation above can be discretised:
+$$
+y_m = \sum_{n=1}^N x_n exp( -D_n \Delta q_m^2 )
+$$
+with $D_n$ sampling the $D_{\min}$ to $D_{\max}$ axis in an exponential manner.
+
+<p>As this expression is linear in $x_n$, it can be rewritten as follows:
+$$
+Y = \pmb{H} {X} 
+$$
+where $Y = \{ y_m, 1 \leq m \leq M \}$ is the experimental series,
+$X=\{ x_n, 1 \leq n \leq N \}$ is the reconstructed distribution,
+and $\pmb{H}$ is a $M \times N$ matrix with values $\pmb{H}_{m,n} = exp( -D_n \Delta q_m^2 )$.
+
+<p>A general approach to solving this linear equation is to generate a solution $\hat{X}$ which solves the following constrained optimisation problem:
+$$
+\text{minimize}_{X \in \mathbb{R}^N}\,{\Psi(X)} \quad \text{subject to}\quad  \| \pmb{H} X - Y \| \le \eta
+$$
+where $\eta$ is an estimate of the expected quality of the fit, based on an estimate of the experimental noise.
+
+<p>
+    In order to favour both smooth and sparse shapes in the estimated signal, we use a regularisation defined as follows:
+$$    \Psi(X) =    \lambda \text{ent}(X,a)  + (1 - \lambda) \ell_1(X)
+$$
+    where $\text{ent}{(X,a)}$ is given by
+    $$ 
+    \text{ent}(X,a) =   
+    \begin{cases}
+        \sum_{n=1}^N  \frac{x_n}{a} \log  \left(\frac{x_n}{a}\right) & \mbox{if} \, \,x_n > 0 \\
+        0 & \mbox{if} \, \,  x_n = 0\\
+        +\infty & \mbox{elsewhere},
+    \end{cases}
+    $$
+corresponds to the MaxEnt regularisation with a flat prior $a>0$.
+
+<p>    $\ell_{1}(X)$ is the $\ell_1$ norm of the vector $X$:
+    $$
+    \ell_{1}(X) = \sum_{n=1}^N  |x_n|
+    $$
+    and $\lambda \in [0,1]$ allows to control the balance between the sparsity prior and the entropy prior.  
+
+<h3>Algorithm</h3>
+<p>This problem is solved by using a modified Douglas-Rachtford approach, using the proximal operator of the regularization function $\Psi$.
+The details of this algorithm are outside the scope of this presentation, and can be found in the publication.
+
+<p>The implementation requires the following parameters :
+    <DL>
+        <dt>$\lambda$
+            <dd> the weight between $\ell_1$ and MaxEnt regularisation.
+                <strong>typically chosen here to be $\lambda=0.1$ which gives the best general results, but modified in the special cases</strong>
+        <dt>$\eta$
+            <dd> the noise corrupting the experimental decay
+                <strong>Estimated from a polynomial fit of the decay</strong>
+        <DT>$a$
+            <DD>the <em>prior</em> using in the Entropy definition,
+          <strong>chosen here as $y_o \approx \sum_n{X_n}$</strong>
+    </DL>
+    
+<h3>Program</h3>
+<p>The program takes the dataset provided in the zip file, analyse the acquisition the <tt>PULPROG</tt> and the parameters to determine the diffusion scale.
+    Then using the <tt>difflist</tt> file as the list of the intensities of PFG, the analysis is done.
+    
+<p>The program scans all the columns of the 2D, and process only columns corresponding to signal with a minimum SNR. Other columns are just set to zero.
+The program is naturally parallelized by submitting to each processor a subset of the columns to be processed.
+
+<p>The program is provided as a plugin to the spike spectroscopy program.
+
+<p>Spike can be downloaded on bitbucket,  <a href="https://bitbucket.org/delsuc/spike">HERE</a>.
+At this date, the <tt>devel</tt> branch should be used.
+
+<p>The python code of PALMA on which the plugin is based is <a href="{{ url_for('static', filename='PALMA.py') }}">HERE</a>
+{% endblock %}
