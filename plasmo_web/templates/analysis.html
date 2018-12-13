@@ -7,7 +7,12 @@
 	}
 	label { font-size: 14px }
 	</style>
-
+	<div class="row" style="text-align: left;margin:auto;">
+		<div class="col-md-12">
+			<A HREF = "{{ url_for('analysis_plasmo') }}">Report of plasmodesma analysis.</A> - 
+			<A HREF = "{{ url_for('report_plasmo') }}">Report of plasmodesma data processing.</A>
+		</div>
+	</div>
 	<div class="container-fluid" style="border-style: groove;border-color: steelblue;border-width: 2px;border-radius: 10px;padding-right: 5px;padding-left: 5px;margin: 5px;">
 		<div class="row" style=";padding-right: 8px;padding-left: 8px">
 			<div class="col-md-4" style="border-bottom-style:double;border-bottom-color: steelblue;padding-right: 15px;padding-left: 15px; border-right-style: groove;border-right-color: steelblue;border-right-width: 2px;border-bottom-right-radius: 10px;margin-right: 5px;">
@@ -38,8 +43,8 @@
 					<div class="form-group">
 						<label>Denoising?</label> 
 						<div>
-							<label class="custom-control custom-radio">
-							<input name="clean" type="radio" aria-describedby="cleanHelpBlock" required="required" class="custom-control-input" value="True"> 
+							<label class="custom-control custom-radio active">
+							<input name="clean" type="radio" aria-describedby="cleanHelpBlock" required="required" class="custom-control-input" value="True" checked="checked"> 
 							<span class="custom-control-indicator"></span> 
 							<span class="custom-control-description">Yes</span>
 							</label>
@@ -65,8 +70,8 @@
 					<div class="form-group">
 						<label>Symetrization?</label> 
 						<div>
-							<label class="custom-control custom-radio">
-							<input name="sym" type="radio" class="custom-control-input" value="True" aria-describedby="symHelpBlock" required="required"> 
+							<label class="custom-control custom-radio active">
+							<input name="sym" type="radio" class="custom-control-input" value="True" aria-describedby="symHelpBlock" required="required" checked="checked"> 
 							<span class="custom-control-indicator"></span> 
 							<span class="custom-control-description">Yes</span>
 							</label>
@@ -81,8 +86,8 @@
 					</div>
 					<label>Sample Activities</label> 
 						<div>
-							<label class="custom-control custom-radio">
-							<input name="activities" type="radio" class="custom-control-input" value="True" aria-describedby="symHelpBlock" required="required"> 
+							<label class="custom-control custom-radio active">
+							<input name="activities" type="radio" class="custom-control-input" value="True" aria-describedby="symHelpBlock" required="required" checked="checked"> 
 							<span class="custom-control-indicator"></span> 
 							<span class="custom-control-description">Activity %</span>
 							</label>

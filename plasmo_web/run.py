@@ -58,8 +58,18 @@ def home():
     return render_template('home.html',title='Home')
 @app.route("/analysis.html")
 def analysis():
-    """Returns home.html"""
+    """Returns analysis.html"""
     return render_template('analysis.html',title='Data Analysis')
+
+@app.route("/analysis_plasmo.html")
+def analysis_plasmo():
+    """Returns analysis_plasmo.html"""
+    return render_template('analysis_plasmo.html',title='Report of Data Analysis')
+
+@app.route("/report_plasmo.html")
+def report_plasmo():
+    """Returns report_plasmo.html"""
+    return render_template('report_plasmo.html',title='Report of Data Processing')
 
 @app.route('/form.html', methods=['GET', 'POST'])
 def form():

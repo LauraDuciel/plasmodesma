@@ -1,0 +1,619 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>type</th>
+      <th>file</th>
+      <th>content</th>
+    </tr>
+    <tr>
+      <th>manip</th>
+      <th>expno</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="14" valign="top">SMARTE3_161123</th>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_peaklist.csv</td>
+      <td>203 in Peak list</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_peaklist.csv</td>
+      <td>204 in Peak list</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_peaklist.csv</td>
+      <td>258 in Peak list</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_peaklist.csv</td>
+      <td>278 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_peaklist.csv</td>
+      <td>96 in Peak list</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_peaklist.csv</td>
+      <td>277 in Peak list</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_bucketlist.csv</td>
+      <td>724 rectangular buckets with a mean size of 2...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_peaklist.csv</td>
+      <td>165 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th rowspan="14" valign="top">SMARTE5_161123</th>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_peaklist.csv</td>
+      <td>159 in Peak list</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_peaklist.csv</td>
+      <td>154 in Peak list</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_peaklist.csv</td>
+      <td>132 in Peak list</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_peaklist.csv</td>
+      <td>95 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_peaklist.csv</td>
+      <td>46 in Peak list</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_peaklist.csv</td>
+      <td>69 in Peak list</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_bucketlist.csv</td>
+      <td>724 rectangular buckets with a mean size of 2...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_peaklist.csv</td>
+      <td>137 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th rowspan="14" valign="top">SMARTE2_161123</th>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_peaklist.csv</td>
+      <td>371 in Peak list</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_peaklist.csv</td>
+      <td>349 in Peak list</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_peaklist.csv</td>
+      <td>202 in Peak list</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_peaklist.csv</td>
+      <td>270 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_peaklist.csv</td>
+      <td>163 in Peak list</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_peaklist.csv</td>
+      <td>335 in Peak list</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_bucketlist.csv</td>
+      <td>724 rectangular buckets with a mean size of 2...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_peaklist.csv</td>
+      <td>368 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th rowspan="14" valign="top">ARTEref_161123</th>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_peaklist.csv</td>
+      <td>546 in Peak list</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_peaklist.csv</td>
+      <td>535 in Peak list</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_peaklist.csv</td>
+      <td>451 in Peak list</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_peaklist.csv</td>
+      <td>273 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_peaklist.csv</td>
+      <td>198 in Peak list</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_peaklist.csv</td>
+      <td>228 in Peak list</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_bucketlist.csv</td>
+      <td>724 rectangular buckets with a mean size of 2...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_peaklist.csv</td>
+      <td>522 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th rowspan="14" valign="top">SMARTE1_161123</th>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_peaklist.csv</td>
+      <td>193 in Peak list</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_peaklist.csv</td>
+      <td>496 in Peak list</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_peaklist.csv</td>
+      <td>99 in Peak list</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_peaklist.csv</td>
+      <td>129 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_peaklist.csv</td>
+      <td>59 in Peak list</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_peaklist.csv</td>
+      <td>154 in Peak list</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_bucketlist.csv</td>
+      <td>724 rectangular buckets with a mean size of 2...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_peaklist.csv</td>
+      <td>105 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th rowspan="14" valign="top">SMARTE4_161123</th>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_peaklist.csv</td>
+      <td>237 in Peak list</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_peaklist.csv</td>
+      <td>243 in Peak list</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_peaklist.csv</td>
+      <td>156 in Peak list</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_peaklist.csv</td>
+      <td>81 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_peaklist.csv</td>
+      <td>38 in Peak list</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_peaklist.csv</td>
+      <td>75 in Peak list</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_bucketlist.csv</td>
+      <td>724 rectangular buckets with a mean size of 2...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_peaklist.csv</td>
+      <td>98 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th rowspan="14" valign="top">SMARTE6_161123</th>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_peaklist.csv</td>
+      <td>254 in Peak list</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1D</td>
+      <td>1_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_peaklist.csv</td>
+      <td>252 in Peak list</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1D</td>
+      <td>2_bucketlist.csv</td>
+      <td>451 buckets with a mean size of 27.26 data po...</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_peaklist.csv</td>
+      <td>251 in Peak list</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_peaklist.csv</td>
+      <td>348 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_peaklist.csv</td>
+      <td>124 in Peak list</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>cosydfph</td>
+      <td>cosydfph_10_peaklist.csv</td>
+      <td>317 in Peak list</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>dstebpgp3s</td>
+      <td>dstebpgp3s_30_bucketlist.csv</td>
+      <td>724 rectangular buckets with a mean size of 2...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>dipsi2phpr</td>
+      <td>dipsi2phpr_20_bucketlist.csv</td>
+      <td>32761 rectangular buckets with a mean size of...</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>hmbcgplpndqf</td>
+      <td>hmbcgplpndqf_50_peaklist.csv</td>
+      <td>309 in Peak list</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>hsqcetgp</td>
+      <td>hsqcetgp_40_bucketlist.csv</td>
+      <td>29141 rectangular buckets with a mean size of...</td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}
