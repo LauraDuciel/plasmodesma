@@ -1,34 +1,55 @@
 {% extends "layout.html" %}
 {% block body %}
 <h3>Welcome</h3>
-<p>This Web service allows to ....</p>
-
+<p>This Web service allows to use the *Plasmodesma* server freely</p>
+<p>When using this service, please refer to:
+	<ul>
+		<li> L. Margueritte, P. Markov, L. Chiron, J.-P. Starck, C. Vonthron-Sénécheau, M. Bourjot and M.-A. Delsuc, <em>Magn. Reson. Chem.</em>, 2018, <strong>56</strong>, 469–479.</li>
+	</ul>
+</p>
 
 <p><em>This site is associated to the work:</em></p>
 <div class="container">
-<h4>Automatised Pharmacophoric Deconvolution of Plant Extracts, application to Quinquina.</h4>
-<p>Laure Margueritte1* Laura Duciel2* Mélanie Bourjot1
-Catherine Vonthron-Sénécheau1 Marc-André Delsuc2,3<br>
+<h4>Automatised Pharmacophoric Deconvolution of Plant Extracts, application to Cinchona bark crude extract</h4>
+<p>Laure Margueritte,a‡ Laura Duciel,b,c‡ Mélanie Bourjot,d Catherine Vonthron- Sénécheau,a and Marc-André Delsuc∗b<br>
 <ul>
-<li>1. Laboratoire d’Innovation Thérapeutique (LIT) UMR CNRS 7200, LabEx Medalis, Faculté de
+<li>a. Laboratoire d’Innovation Thérapeutique (LIT) UMR CNRS 7200, LabEx Medalis, Faculté de
 Pharmacie, Université de Strasbourg, Illkirch-Graffenstaden, France</li>
-<li>2. CASC4DE Le Lodge, 20, Avenue du Neuhof, 67100 Strasbourg, France</li>
-<li>3. Institut de Génétique et de Biologie Moléculaire et Cellulaire (IGBMC), INSERM U596, CNRS
+<li>b. CASC4DE Le Lodge, 20, Avenue du Neuhof, 67100 Strasbourg, France</li>
+<li>c. Institut de Génétique et de Biologie Moléculaire et Cellulaire (IGBMC), INSERM U596, CNRS
 UMR 7104, Université de Strasbourg, Illkirch-Graffenstaden, France</li>
+<li>d. Institut Pluridisciplinaire Hubert Curien (IPHC) UMR CNRS 7178, Faculté de Phar- macie, Université de Strasbourg, Illkirch-Graffenstaden, France.</li>
 </ul>
-• These two authors contributed equally<br/>
+‡ These two authors contributed equally<br/>
+<p><i>Submitted</i></p>
 
-<p>Abstract Here</p>
+<h4>Abstract</h4>
+<p>
+We present a development of the *Plasmodesma* dereplication method [Margueritte et al., <I>Magn. Reson. Chem.</I>, 2018 <B>56</B>, 469].
+This method is based on the automatic acquisition of a standard set of NMR experiments from a medium size set of samples differing by their bioactivity.
+From this raw data, an analysis pipeline is run and the data is analysed by leveraging  machine learning approaches in order to extract the spectral fingerprints of the active compounds.
+The optimal conditions for the analysis are determined, and tested on two different system, a synthetic sample where a single active molecule is to be isolated and characterized, and a complex bioactive matrix with synergetic interactions between the components.
+The method allows the identification of the active compounds and performs a pharmacophoric deconvolution.</p>
+
+<p>The program is made available on internet, with an interactive visualisation of the statistical analysis, at https://plasmodesma.igbmc.science.
+</p>
 <p>Visit the <a href="about.html" title="About">Methods</a> page for details.</p>
 </div>
 
-<p></p>
-<p>This web site allows to use the PALMA algorithm to process you DOSY experiments.
-    </p>
 
 <h3>To process a data-set</h3>
-
-    <p> Use the "Data Analysis" page to send your job,....</p>
+<ul>
+	<li>Start with a set of samples with a quantitative measurement (activity, IC50,...)</li>
+	<li>Acquire a set of 2D NMR experiments (the program actually handles COSY, TOCSY, HSQC, HMBC, DOSY). It is important that
+		<ul>
+			<li>all samples are acquired with exactly the same set-up, ideally in automation</li>
+			<li>create a Bruker experiment for each sample</li>
+			<li>the same <tt>expno</tt> are used all along the different experiments</li>
+		</ul></li>
+	<li>Create a zip archive of the Bruker experiements, no need to process them</li>
+	<li>Go to the page  "Data Processing" to send your job - this will start the processing job on our server. You will receive a mail when the processing is finished. (processing time may depend on the server load).</li>
+	<li>This mail will contain a link pointing to the site where you can be look at the results of the analysis</li>
+</ul>
         
 <h3>Terms of use</h3>
 <p>By using this service, you agree to acknowledge this program when presenting results using this program.
@@ -51,8 +72,9 @@ there are deleted and no copy is left on our server.</p>
 
 <h3>Acknowledgements</h3>
 <p>This sever is made possible thanks to the help of many people and organisations.<p>
-We thanks:
-<ul>
-
+We thanks 
+<ul><li><a href="http://www.casc4de.eu">The CASC4DE company</a> for the code of the web server</li>
+	<li>the <a href="http://www.igbmc.fr">IGBMC</a> for access to CPU time</li>
+	<li>J. Seiler and the <a href="http://www.igbmc.fr">IGBMC IT</a> team for the support of the server</li>
 </ul>
 {% endblock %}

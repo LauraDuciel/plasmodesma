@@ -1,18 +1,27 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<p><em>This program will only work for experiment ...</em></p>
+<p><em>This program will only work for experiment run on a Bruker instrument.
+Tested for TopSpin versions 2.1 to 3.2</em></p>
     
 <ul>
-    <li> Acquire your...(check the <a href="HowTo.html" title="How-To">How-To</a> for hints on ...).</li>
-    <li> create a zipfile containing ... </li>
+    <li>Start with a set of samples with a quantitative measurement (activity, IC50,...)</li>
+    <li>Acquire a set of 2D NMR experiments (the program actually handles COSY, TOCSY, HSQC, HMBC, DOSY). It is important that
+        <ul>
+            <li>all samples are acquired with exactly the same set-up, ideally in automation</li>
+            <li>create a Bruker experiment for each sample</li>
+            <li>the same <tt>expno</tt> are used all along the different experiments</li>
+        </ul></li>
+    <li>Create a zip archive of the Bruker experiements, no need to process them</li>
+    <li>Go to the page  "Data Processing" to send your job - this will start the processing job on our server. You will receive a mail when the processing is finished. (processing time may depend on the server load).</li>
+    <li>This mail will contain a link pointing to the site where you can be look at the results of the analysis</li>
 </ul>
 
-<h3>Remarks</h3>
+<!-- <h3>Remarks</h3>
 <ul>
 
 </ul>
-
+ -->
 <!--Exemple de formulaire simple sans bootstrap en cas de besoin.
 Comprends un champ pour l'email, pour upload un fichier, pour 1 paramètre texte et pour 1 liste déroulante.
     <form method="POST" enctype=multipart/form-data action="">
@@ -45,12 +54,13 @@ Comprends un champ pour l'email, pour upload un fichier, pour 1 paramètre texte
         <input type="file" class="form-control-file" name="file">
    </fieldset>
 <hr/>
-<h3>Parameters</h3>
+<!-- <h3>Parameters</h3>
     <p class="form-control-static">Choose ..</p>
         <select class="form-control" name="Something">
           <option value="1">Default value &nbsp; &nbsp; &nbsp;   Blablabla</option>
         </select>
         <br>
-<button type="submit" class="btn btn-primary" value="Upload">Submit</button>
+ -->
+ <button type="submit" class="btn btn-primary" value="Upload">Submit</button>
 </form>
 {% endblock %}

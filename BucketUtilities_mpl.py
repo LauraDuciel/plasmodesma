@@ -54,7 +54,7 @@ class StatSeries():
         self.data2 = None
         # load experiments
         if manip_mode == 'TOCSY':
-            maniplist = ['dipsi', 'mlev', 'towny']
+            maniplist = ['dipsi', 'mlev', 'towny', 'hohaha', 'tocsy']
             mode = 'homonuclear'
         elif manip_mode == 'COSY':
             maniplist = ['cosy']
@@ -63,13 +63,14 @@ class StatSeries():
             maniplist = ['ste', 'led', '%led']
             mode = 'dosy'
         elif manip_mode == 'HSQC':
-            maniplist = ['hsqc', 'hmbc']
+            maniplist = ['hsqc', 'hmbc', 'hmqc']
             mode = 'heteronuclear'
         else:
             raise ModeError("wrong mode, use only one of HSQC, COSY, TOCSY, DOSY")
         for n in sorted( glob.glob( op.join(folder, '*', '2D', '*_bucketlist.csv' ))):
             seqname = op.basename(n)
-            if any( (seqname.startswith(manip) for manip in maniplist ) ):
+            if any( (manip in seqname  for manip in maniplist ) ):
+#            if any( (seqname.startswith(manip) for manip in maniplist ) ):
                 if dataref is not None and \
                     any( (iref in n for iref in dataref) ):
                         self.reference.append(StatSpectrum(n, sym=sym, net=net, normalize=normalize, manip_mode=mode))

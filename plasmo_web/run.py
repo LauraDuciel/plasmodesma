@@ -25,6 +25,7 @@ from sys import platform as _platform
 # CONFIGURATION
 MAINTENANCE = False   # set to True for maintenance
 PORT = 8000
+Debug = True
 ALLOWED_EXTENSIONS = set(['zip'])
 #JOBSDIR = "/Volumes/biak_1ToHD/rdc/PALMA_WEB/jobs"  # location of the jobs to do
 JOBSDIR = "/kiefb/delsuc/PALMA/JOBS"       # location of the jobs to do
@@ -240,7 +241,7 @@ def main(startweb=True):
 
     """.format(url) )
     try:
-        app.run(port = port , host='127.0.0.1') # port
+        app.run(port = port , host='127.0.0.1', debug=Debug) # port
     except OSError:
         print("################################################################################")
         print("             WARNING\n")
